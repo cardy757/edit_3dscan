@@ -32,7 +32,9 @@ $Log: meshedit.cpp,v $
 #include <wrap/gl/pick.h>
 #include <wrap/qt/gl_label.h>
 #include "opencv2/highgui/highgui.hpp"
+#ifndef WIN32
 #include "opencv2/videoio/videoio_c.h" // need for CV_CAP_PROP... ??
+#endif
 
 using namespace std;
 using namespace vcg;
@@ -40,182 +42,182 @@ using namespace cv;
 
 Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this)
 {
-	scanDialog = NULL;
-	webCamDlg = NULL;
-	gla = NULL;
-	md = NULL;
-	mesh = NULL;
-	cvcap = NULL;
-	timer = NULL;
+    scanDialog = NULL;
+    webCamDlg = NULL;
+    gla = NULL;
+    md = NULL;
+    mesh = NULL;
+    cvcap = NULL;
+    timer = NULL;
 }
 
 Edit3DScanPlugin::~Edit3DScanPlugin() //TODO: close meshlab without stop edit will not call destructor?
 {
-	releaseResource();
+    releaseResource();
 }
 
 void Edit3DScanPlugin::releaseResource()
 {
-	if (timer != NULL)
-	{
-		timer->stop();
-		delete timer;
-		timer = NULL;
-	}
-	if (cvcap != NULL)
-	{
-		cvcap->release();
-		delete cvcap;
-		cvcap = NULL;
-	}
-	if (webCamDlg != NULL)
-	{
-		delete webCamDlg;
-		webCamDlg = NULL;
-	}
-	if (scanDialog != NULL)
-	{
-		delete scanDialog;
-		scanDialog = NULL;
-	}
+    if (timer != NULL)
+    {
+        timer->stop();
+        delete timer;
+        timer = NULL;
+    }
+    if (cvcap != NULL)
+    {
+        cvcap->release();
+        delete cvcap;
+        cvcap = NULL;
+    }
+    if (webCamDlg != NULL)
+    {
+        delete webCamDlg;
+        webCamDlg = NULL;
+    }
+    if (scanDialog != NULL)
+    {
+        delete scanDialog;
+        scanDialog = NULL;
+    }
 }
 
 const QString Edit3DScanPlugin::Info() 
 {
-	return tr("Execute 3D scanning process.");
+    return tr("Execute 3D scanning process.");
 }
 
 void Edit3DScanPlugin::mousePressEvent(QMouseEvent *event, MeshModel &m, GLArea *gla)
 {
-	if (Qt::LeftButton | event->buttons())
-	{
-		gla->suspendedEditor = true;
-		QCoreApplication::sendEvent(gla, event);
-		gla->suspendedEditor = false;
-	}
+    if (Qt::LeftButton | event->buttons())
+    {
+        gla->suspendedEditor = true;
+        QCoreApplication::sendEvent(gla, event);
+        gla->suspendedEditor = false;
+    }
 }
 
 void Edit3DScanPlugin::mouseMoveEvent(QMouseEvent *event, MeshModel &m, GLArea *gla)
 {
-	if (Qt::LeftButton | event->buttons())
-	{
-		gla->suspendedEditor = true;
-		QCoreApplication::sendEvent(gla, event);
-		gla->suspendedEditor = false;
-	}
+    if (Qt::LeftButton | event->buttons())
+    {
+        gla->suspendedEditor = true;
+        QCoreApplication::sendEvent(gla, event);
+        gla->suspendedEditor = false;
+    }
 }
 
 void Edit3DScanPlugin::mouseReleaseEvent(QMouseEvent *event, MeshModel &m, GLArea *gla)
 {
-	if (Qt::LeftButton | event->buttons())
-	{
-		gla->suspendedEditor = true;
-		QCoreApplication::sendEvent(gla, event);
-		gla->suspendedEditor = false;
-	}
+    if (Qt::LeftButton | event->buttons())
+    {
+        gla->suspendedEditor = true;
+        QCoreApplication::sendEvent(gla, event);
+        gla->suspendedEditor = false;
+    }
 }
 
 void Edit3DScanPlugin::wheelEvent(QWheelEvent *event, MeshModel &m, GLArea *gla)
 {
-	gla->suspendedEditor = true;
-	QCoreApplication::sendEvent(gla, event);
-	gla->suspendedEditor = false;
+    gla->suspendedEditor = true;
+    QCoreApplication::sendEvent(gla, event);
+    gla->suspendedEditor = false;
 }
 
 bool Edit3DScanPlugin::StartEdit(MeshDocument &m, GLArea *parent)
 {
-	this->md = &m;
-	this->gla = parent;
-	if (md->mm() == NULL)
-	{
-		RenderMode rm;
-		rm.drawMode = GLW::DMPoints;
-		md->addNewMesh("", "Scanned Mesh", true, rm);
-	}
+    this->md = &m;
+    this->gla = parent;
+    if (md->mm() == NULL)
+    {
+        RenderMode rm;
+        rm.drawMode = GLW::DMPoints;
+        md->addNewMesh("", "Scanned Mesh", true, rm);
+    }
 
-	if (this->mesh != this->md->mm())
-		this->mesh = this->md->mm();
+    if (this->mesh != this->md->mm())
+        this->mesh = this->md->mm();
 
-	//Create GUI window if we dont already have one
-	if (scanDialog == NULL)
-	{
-		scanDialog = new ScanDialog(gla->window());
-		connect(scanDialog->ui.procScan, SIGNAL(clicked()), this, SLOT(procScan()));
-		connect(scanDialog->ui.webCam, SIGNAL(stateChanged(int)), this, SLOT(webCam(int)));
-		connect(scanDialog, SIGNAL(SGN_Closing()), gla, SLOT(endEdit()));
-	}
-	scanDialog->show();
+    //Create GUI window if we dont already have one
+    if (scanDialog == NULL)
+    {
+        scanDialog = new ScanDialog(gla->window());
+        connect(scanDialog->ui.procScan, SIGNAL(clicked()), this, SLOT(procScan()));
+        connect(scanDialog->ui.webCam, SIGNAL(stateChanged(int)), this, SLOT(webCam(int)));
+        connect(scanDialog, SIGNAL(SGN_Closing()), gla, SLOT(endEdit()));
+    }
+    scanDialog->show();
 
-	//Initialize opencv video capture device
-	cvcap = new VideoCapture(0); // open the video camera no. 0
-	if (!cvcap->isOpened()) false;
+    //Initialize opencv video capture device
+    cvcap = new VideoCapture(0); // open the video camera no. 0
+    if (!cvcap->isOpened()) false;
 
-	cvcap->set(CV_CAP_PROP_FRAME_WIDTH, 1280);
-	cvcap->set(CV_CAP_PROP_FRAME_HEIGHT, 720);
+    cvcap->set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+    cvcap->set(CV_CAP_PROP_FRAME_HEIGHT, 720);
 
-	//timer to get new frame from camera
-	timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(updateFrame()));
+    //timer to get new frame from camera
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateFrame()));
 
-	return true;
+    return true;
 }
 
 void Edit3DScanPlugin::EndEdit(MeshModel &m, GLArea *parent)
 {
-	releaseResource();
+    releaseResource();
 }
 
 void Edit3DScanPlugin::procScan()
 {
-	QPushButton *b = qobject_cast<QPushButton *>(sender());
+    QPushButton *b = qobject_cast<QPushButton *>(sender());
 
-	if (!scanProc.isRunning()) //start scan process
-	{
-		scanProc.SetMesh(mesh);
-		scanProc.SetGLArea(gla);
-		scanProc.start();
-		b->setText("Stop Scan");
-	}
-	else //stop scan process
-	{
-		scanProc.stop();
-		b->setText("Start Scan");
-	}
+    if (!scanProc.isRunning()) //start scan process
+    {
+        scanProc.SetMesh(mesh);
+        scanProc.SetGLArea(gla);
+        scanProc.start();
+        b->setText("Stop Scan");
+    }
+    else //stop scan process
+    {
+        scanProc.stop();
+        b->setText("Start Scan");
+    }
 }
 
 void Edit3DScanPlugin::webCam(int checkState)
 {
-	if (checkState == Qt::Checked)
-	{
-		if (webCamDlg == NULL)
-		{
-			webCamDlg = new WebCamDlg;
-			connect(webCamDlg, SIGNAL(SGN_Closing()), this, SLOT(camWndClosed()));
-		}
-		webCamDlg->show();
-		timer->start(30);
-	}
-	else
-	{
-		timer->stop();
-		webCamDlg->hide();
-	}
+    if (checkState == Qt::Checked)
+    {
+        if (webCamDlg == NULL)
+        {
+            webCamDlg = new WebCamDlg;
+            connect(webCamDlg, SIGNAL(SGN_Closing()), this, SLOT(camWndClosed()));
+        }
+        webCamDlg->show();
+        timer->start(30);
+    }
+    else
+    {
+        timer->stop();
+        webCamDlg->hide();
+    }
 }
 
 void Edit3DScanPlugin::camWndClosed()
 {
-	scanDialog->ui.webCam->setCheckState(Qt::Unchecked);
+    scanDialog->ui.webCam->setCheckState(Qt::Unchecked);
 }
 
 void Edit3DScanPlugin::updateFrame()
 {
-	Mat frame;
-	bool bSuccess = cvcap->read(frame); // read a new frame from video
+    Mat frame;
+    bool bSuccess = cvcap->read(frame); // read a new frame from video
 
-	QImage image(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-	image = image.rgbSwapped();
+    QImage image(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+    image = image.rgbSwapped();
 
-	webCamDlg->updateFrame(image);
+    webCamDlg->updateFrame(image);
 
-	//send the captured frame to ScanProc for futher processing
+    //send the captured frame to ScanProc for futher processing
 }

@@ -7,24 +7,24 @@
 
 class ScanProc : public QThread
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	ScanProc(QObject *parent);
-	~ScanProc();
+    ScanProc(QObject *parent);
+    ~ScanProc();
 
-	void SetMesh(MeshModel *m) { mesh = m; }
-	void SetGLArea(GLArea* g) { gla = g; }
+    void SetMesh(MeshModel *m) { mesh = m; }
+    void SetGLArea(GLArea* g) { gla = g; }
 
-	void run();
-	void stop();
+    void run();
+    void stop();
 
 private:
-	QMutex mutex;
-	bool fstop;
+    QMutex mutex;
+    bool fstop;
 
-	MeshModel *mesh;
-	GLArea *gla;
+    MeshModel *mesh;
+    GLArea *gla;
 };
 
 #endif // SCANPROC_H

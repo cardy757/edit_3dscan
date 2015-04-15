@@ -5,20 +5,20 @@
 
 class MyOpenGLWidget : public QGLWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MyOpenGLWidget(QObject *parent);
-	~MyOpenGLWidget();
+    MyOpenGLWidget(QObject *parent);
+    ~MyOpenGLWidget();
 
-	void updateFrame(QImage& image);
+    void updateFrame(QImage& image);
 
 protected:
-	virtual void paintGL();
-	virtual void resizeGL(int width, int height);
+    virtual void paintGL();
+    virtual void resizeGL(int width, int height);
 
 private:
-	
+    
 };
 
 #endif // MYOPENGLWIDGET_H
