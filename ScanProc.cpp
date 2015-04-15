@@ -45,7 +45,7 @@ void ScanProc::run()
 			mesh->meshModified() = true;
 			gla->update();
 
-			Sleep(300);
+            msleep(300);
 
 			QMutexLocker locker(&mutex);
 			if (fstop) break;
@@ -59,5 +59,5 @@ void ScanProc::run()
 void ScanProc::stop()
 {
 	QMutexLocker locker(&mutex);
-	fstop = true;
+    fstop = true;
 }

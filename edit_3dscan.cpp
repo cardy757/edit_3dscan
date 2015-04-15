@@ -32,6 +32,7 @@ $Log: meshedit.cpp,v $
 #include <wrap/gl/pick.h>
 #include <wrap/qt/gl_label.h>
 #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/videoio/videoio_c.h" // need for CV_CAP_PROP... ??
 
 using namespace std;
 using namespace vcg;
