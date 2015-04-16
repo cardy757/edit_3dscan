@@ -30,6 +30,9 @@
 #include "ScanProc.h"
 #include "scanDialog.h"
 #include "webcamdlg.h"
+#include "camerapreviewdlg.h"
+
+#define RENDER_USING_OPENGL 0
 
 using namespace cv;
 
@@ -57,7 +60,11 @@ public:
 		
 private:
 	ScanDialog *scanDialog;
-	WebCamDlg *webCamDlg;
+#if RENDER_USING_OPENGL
+    WebCamDlg *webCamDlg;
+#else
+    CameraPreviewDlg *cameraPreviewDlg;
+#endif
 	GLArea *gla;
 	MeshDocument *md;
 	MeshModel *mesh;

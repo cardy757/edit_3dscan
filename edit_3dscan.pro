@@ -7,14 +7,16 @@ HEADERS       = edit_3dscan_factory.h \
                 ScanProc.h \
                 myopenglwidget.h \
                 webcamdlg.h \
-                edit_3dscan.h
+                edit_3dscan.h \
+                camerapreviewdlg.h
 
 SOURCES       = edit_3dscan_factory.cpp \
                 edit_3dscan.cpp \
                 scanDialog.cpp \
                 ScanProc.cpp \
                 myopenglwidget.cpp \
-                webcamdlg.cpp
+                webcamdlg.cpp \
+                camerapreviewdlg.cpp
 				
 
 TARGET        = edit_3dscan

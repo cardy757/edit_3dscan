@@ -41,8 +41,12 @@ using namespace cv;
 Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this)
 {
 	scanDialog = NULL;
-	webCamDlg = NULL;
-	gla = NULL;
+#if RENDER_USING_OPENGL
+    webCamDlg = NULL;
+#else
+    cameraPreviewDlg = NULL;
+#endif
+    gla = NULL;
 	md = NULL;
 	mesh = NULL;
 	cvcap = NULL;
@@ -68,11 +72,19 @@ void Edit3DScanPlugin::releaseResource()
 		delete cvcap;
 		cvcap = NULL;
 	}
-	if (webCamDlg != NULL)
+#if RENDER_USING_OPENGL
+    if (webCamDlg != NULL)
 	{
 		delete webCamDlg;
 		webCamDlg = NULL;
-	}
+    }
+#else
+    if (cameraPreviewDlg != NULL)
+    {
+        delete cameraPreviewDlg;
+        cameraPreviewDlg = NULL;
+    }
+#endif
 	if (scanDialog != NULL)
 	{
 		delete scanDialog;
@@ -150,8 +162,8 @@ bool Edit3DScanPlugin::StartEdit(MeshDocument &m, GLArea *parent)
 	cvcap = new VideoCapture(0); // open the video camera no. 0
 	if (!cvcap->isOpened()) false;
 
-	cvcap->set(CV_CAP_PROP_FRAME_WIDTH, 1280);
-	cvcap->set(CV_CAP_PROP_FRAME_HEIGHT, 720);
+    cvcap->set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+    cvcap->set(CV_CAP_PROP_FRAME_HEIGHT, 720);
 
 	//timer to get new frame from camera
 	timer = new QTimer(this);
@@ -187,19 +199,34 @@ void Edit3DScanPlugin::webCam(int checkState)
 {
 	if (checkState == Qt::Checked)
 	{
-		if (webCamDlg == NULL)
+#if RENDER_USING_OPENGL
+        if (webCamDlg == NULL)
 		{
 			webCamDlg = new WebCamDlg;
-			connect(webCamDlg, SIGNAL(SGN_Closing()), this, SLOT(camWndClosed()));
+            connect(webCamDlg, SIGNAL(SGN_Closing()), this, SLOT(camWndClosed()));
 		}
-		webCamDlg->show();
-		timer->start(30);
+        webCamDlg->show();
+#else
+        if (cameraPreviewDlg == NULL)
+        {
+            cameraPreviewDlg = new CameraPreviewDlg;
+            connect(cameraPreviewDlg, SIGNAL(SGN_Closing()), this, SLOT(camWndClosed()));
+
+        }
+        cameraPreviewDlg->show();
+#endif
+
+        timer->start(30);
 	}
 	else
 	{
 		timer->stop();
-		webCamDlg->hide();
-	}
+#if RENDER_USING_OPENGL
+        webCamDlg->hide();
+#else
+        cameraPreviewDlg->hide();
+#endif
+    }
 }
 
 void Edit3DScanPlugin::camWndClosed()
@@ -209,13 +236,24 @@ void Edit3DScanPlugin::camWndClosed()
 
 void Edit3DScanPlugin::updateFrame()
 {
-	Mat frame;
+    Mat frame;
 	bool bSuccess = cvcap->read(frame); // read a new frame from video
 
 	QImage image(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
 	image = image.rgbSwapped();
 
-	webCamDlg->updateFrame(image);
+    static bool bTest = true;
+    if (bTest)
+    {
+        QString str = "test.jpg";
+        bool bResult = image.save(str,"JPEG");
+        bTest = false;
+    }
 
+#if RENDER_USING_OPENGL
+    webCamDlg->updateFrame(image);
+#else
+    cameraPreviewDlg->updateFrame(image);
+#endif
 	//send the captured frame to ScanProc for futher processing
 }
