@@ -51,11 +51,11 @@ public:
     explicit CameraPreviewDlg(QWindow *parent = 0);
 
     virtual void render(QPainter *painter);
+    void updateFrame(QImage& image);
 
 public slots:
     void renderLater();
     void renderNow();
-    void updateFrame(QImage& image);
 
 protected:
     bool event(QEvent *event) Q_DECL_OVERRIDE;
