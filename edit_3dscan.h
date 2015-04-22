@@ -31,6 +31,7 @@
 #include "scanDialog.h"
 #include "webcamdlg.h"
 #include "camerapreviewdlg.h"
+#include "webcam.h"
 
 #define RENDER_USING_OPENGL 0
 
@@ -69,8 +70,7 @@ private:
 	MeshDocument *md;
 	MeshModel *mesh;
 	ScanProc scanProc;
-	VideoCapture *cvcap;
-	QTimer *timer;
+    webcam m_webcam;
 
 	void releaseResource();
 
