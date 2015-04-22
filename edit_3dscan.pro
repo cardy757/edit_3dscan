@@ -39,3 +39,6 @@ macx {
             -lopencv_imgcodecs \
             -lopencv_videoio
 }
+
+RESOURCES += \
+    edit_3dscan.qrc

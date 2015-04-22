@@ -26,7 +26,7 @@
 
 Edit3DScanFactory::Edit3DScanFactory()
 {
-    edit3DScan = new QAction(QIcon(":/images/icon_info.png"), "3D Scan", this);
+    edit3DScan = new QAction(QIcon(":/images/icon_3dscan.png"), "3D Scan", this);
     
     actionList << edit3DScan;
     
