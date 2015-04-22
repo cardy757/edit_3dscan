@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glu32.lib;opengl32.lib;gdi32.lib;user32.lib;../../distrib/common.lib;opencv_core2411.lib;opencv_highgui2411.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Xml.lib;$(QTDIR)\lib\Qt5XmlPatterns.lib;$(QTDIR)\lib\Qt5Network.lib;$(QTDIR)\lib\Qt5Script.lib;$(QTDIR)\lib\Qt5Core.lib;$(QTDIR)\lib\Qt5MultimediaWidgets.lib;$(QTDIR)\lib\Qt5Multimedia.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glu32.lib;opengl32.lib;gdi32.lib;user32.lib;../../distrib/common.lib;opencv_core2411.lib;opencv_highgui2411.lib;opencv_imgproc2411.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Xml.lib;$(QTDIR)\lib\Qt5XmlPatterns.lib;$(QTDIR)\lib\Qt5Network.lib;$(QTDIR)\lib\Qt5Script.lib;$(QTDIR)\lib\Qt5Core.lib;$(QTDIR)\lib\Qt5MultimediaWidgets.lib;$(QTDIR)\lib\Qt5Multimedia.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -115,7 +115,7 @@
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glu32.lib;opengl32.lib;gdi32.lib;user32.lib;../../distrib/common.lib;opencv_core2411d.lib;opencv_highgui2411d.lib;$(QTDIR)\lib\Qt5OpenGLd.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5Xmld.lib;$(QTDIR)\lib\Qt5XmlPatternsd.lib;$(QTDIR)\lib\Qt5Networkd.lib;$(QTDIR)\lib\Qt5Scriptd.lib;$(QTDIR)\lib\Qt5Cored.lib;$(QTDIR)\lib\Qt5MultimediaWidgetsd.lib;$(QTDIR)\lib\Qt5Multimediad.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glu32.lib;opengl32.lib;gdi32.lib;user32.lib;../../distrib/common.lib;opencv_core2411d.lib;opencv_highgui2411d.lib;opencv_imgproc2411d.lib;$(QTDIR)\lib\Qt5OpenGLd.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5Xmld.lib;$(QTDIR)\lib\Qt5XmlPatternsd.lib;$(QTDIR)\lib\Qt5Networkd.lib;$(QTDIR)\lib\Qt5Scriptd.lib;$(QTDIR)\lib\Qt5Cored.lib;$(QTDIR)\lib\Qt5MultimediaWidgetsd.lib;$(QTDIR)\lib\Qt5Multimediad.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -178,6 +178,7 @@
     </ClCompile>
     <ClCompile Include="scanDialog.cpp" />
     <ClCompile Include="ScanProc.cpp" />
+    <ClCompile Include="webcam.cpp" />
     <ClCompile Include="webcamdlg.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -291,6 +292,7 @@ endlocal
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="webcam.h" />
     <CustomBuild Include="camerapreviewdlg.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing camerapreviewdlg.h...</Message>

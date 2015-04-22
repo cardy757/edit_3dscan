@@ -7,32 +7,32 @@
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/types_c.h>
-#include <opencv2/highgui.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 using namespace cv;
 
 class ScanProc : public QThread
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	ScanProc(QObject *parent);
-	~ScanProc();
+    ScanProc(QObject *parent);
+    ~ScanProc();
 
-	void SetMesh(MeshModel *m) { mesh = m; }
-	void SetGLArea(GLArea* g) { gla = g; }
+    void SetMesh(MeshModel *m) { mesh = m; }
+    void SetGLArea(GLArea* g) { gla = g; }
 
-	void run();
-	void stop();
+    void run();
+    void stop();
     void updateFrame(Mat &image);
 
 private:
-	QMutex mutex;
+    QMutex mutex;
     QMutex m_mutexImage;
-	bool fstop;
+    bool fstop;
 
-	MeshModel *mesh;
-	GLArea *gla;
+    MeshModel *mesh;
+    GLArea *gla;
     Mat m_image;
     bool bGotImage;
 

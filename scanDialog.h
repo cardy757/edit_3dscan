@@ -6,19 +6,19 @@
 
 class ScanDialog : public QDockWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	ScanDialog(QWidget *parent = 0);
-	~ScanDialog();
+    ScanDialog(QWidget *parent = 0);
+    ~ScanDialog();
 
-	Ui::scanDialog ui;
+    Ui::scanDialog ui;
 
 Q_SIGNALS:
-	void SGN_Closing();
+    void SGN_Closing();
 
 private:
-	virtual void closeEvent(QCloseEvent * event);
+    virtual void closeEvent(QCloseEvent * event);
 };
 
 #endif // SCANDIALOG_H

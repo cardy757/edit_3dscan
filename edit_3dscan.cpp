@@ -43,29 +43,29 @@ using namespace cv;
 
 Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this)
 {
-	scanDialog = NULL;
+    scanDialog = NULL;
 #if RENDER_USING_OPENGL
     webCamDlg = NULL;
 #else
     cameraPreviewDlg = NULL;
 #endif
     gla = NULL;
-	md = NULL;
-	mesh = NULL;
+    md = NULL;
+    mesh = NULL;
 }
 
 Edit3DScanPlugin::~Edit3DScanPlugin()
 {
-	releaseResource();
+    releaseResource();
 }
 
 void Edit3DScanPlugin::releaseResource()
 {
 #if RENDER_USING_OPENGL
     if (webCamDlg != NULL)
-	{
-		delete webCamDlg;
-		webCamDlg = NULL;
+    {
+        delete webCamDlg;
+        webCamDlg = NULL;
     }
 #else
     if (cameraPreviewDlg != NULL)
@@ -74,121 +74,121 @@ void Edit3DScanPlugin::releaseResource()
         cameraPreviewDlg = NULL;
     }
 #endif
-	if (scanDialog != NULL)
-	{
-		delete scanDialog;
-		scanDialog = NULL;
-	}
+    if (scanDialog != NULL)
+    {
+        delete scanDialog;
+        scanDialog = NULL;
+    }
 }
 
 const QString Edit3DScanPlugin::Info() 
 {
-	return tr("Execute 3D scanning process.");
+    return tr("Execute 3D scanning process.");
 }
 
 void Edit3DScanPlugin::mousePressEvent(QMouseEvent *event, MeshModel &m, GLArea *gla)
 {
-	if (Qt::LeftButton | event->buttons())
-	{
-		gla->suspendedEditor = true;
-		QCoreApplication::sendEvent(gla, event);
-		gla->suspendedEditor = false;
-	}
+    if (Qt::LeftButton | event->buttons())
+    {
+        gla->suspendedEditor = true;
+        QCoreApplication::sendEvent(gla, event);
+        gla->suspendedEditor = false;
+    }
 }
 
 void Edit3DScanPlugin::mouseMoveEvent(QMouseEvent *event, MeshModel &m, GLArea *gla)
 {
-	if (Qt::LeftButton | event->buttons())
-	{
-		gla->suspendedEditor = true;
-		QCoreApplication::sendEvent(gla, event);
-		gla->suspendedEditor = false;
-	}
+    if (Qt::LeftButton | event->buttons())
+    {
+        gla->suspendedEditor = true;
+        QCoreApplication::sendEvent(gla, event);
+        gla->suspendedEditor = false;
+    }
 }
 
 void Edit3DScanPlugin::mouseReleaseEvent(QMouseEvent *event, MeshModel &m, GLArea *gla)
 {
-	if (Qt::LeftButton | event->buttons())
-	{
-		gla->suspendedEditor = true;
-		QCoreApplication::sendEvent(gla, event);
-		gla->suspendedEditor = false;
-	}
+    if (Qt::LeftButton | event->buttons())
+    {
+        gla->suspendedEditor = true;
+        QCoreApplication::sendEvent(gla, event);
+        gla->suspendedEditor = false;
+    }
 }
 
 void Edit3DScanPlugin::wheelEvent(QWheelEvent *event, MeshModel &m, GLArea *gla)
 {
-	gla->suspendedEditor = true;
-	QCoreApplication::sendEvent(gla, event);
-	gla->suspendedEditor = false;
+    gla->suspendedEditor = true;
+    QCoreApplication::sendEvent(gla, event);
+    gla->suspendedEditor = false;
 }
 
 bool Edit3DScanPlugin::StartEdit(MeshDocument &m, GLArea *parent)
 {
-	this->md = &m;
-	this->gla = parent;
-	if (md->mm() == NULL)
-	{
-		RenderMode rm;
-		rm.drawMode = GLW::DMPoints;
-		md->addNewMesh("", "Scanned Mesh", true, rm);
-	}
+    this->md = &m;
+    this->gla = parent;
+    if (md->mm() == NULL)
+    {
+        RenderMode rm;
+        rm.drawMode = GLW::DMPoints;
+        md->addNewMesh("", "Scanned Mesh", true, rm);
+    }
 
-	if (this->mesh != this->md->mm())
-		this->mesh = this->md->mm();
+    if (this->mesh != this->md->mm())
+        this->mesh = this->md->mm();
 
-	//Create GUI window if we dont already have one
-	if (scanDialog == NULL)
-	{
-		scanDialog = new ScanDialog(gla->window());
-		connect(scanDialog->ui.procScan, SIGNAL(clicked()), this, SLOT(procScan()));
-		connect(scanDialog->ui.webCam, SIGNAL(stateChanged(int)), this, SLOT(webCam(int)));
-		connect(scanDialog, SIGNAL(SGN_Closing()), gla, SLOT(endEdit()));
-	}
-	scanDialog->show();
+    //Create GUI window if we dont already have one
+    if (scanDialog == NULL)
+    {
+        scanDialog = new ScanDialog(gla->window());
+        connect(scanDialog->ui.procScan, SIGNAL(clicked()), this, SLOT(procScan()));
+        connect(scanDialog->ui.webCam, SIGNAL(stateChanged(int)), this, SLOT(webCam(int)));
+        connect(scanDialog, SIGNAL(SGN_Closing()), gla, SLOT(endEdit()));
+    }
+    scanDialog->show();
 
     // todo, not a good design?
     connect(&(m_webcam.m_timer), SIGNAL(timeout()), this, SLOT(updateFrame()));
 
-	return true;
+    return true;
 }
 
 void Edit3DScanPlugin::EndEdit(MeshModel &m, GLArea *parent)
 {
-	releaseResource();
+    releaseResource();
 }
 
 void Edit3DScanPlugin::procScan()
 {
-	QPushButton *b = qobject_cast<QPushButton *>(sender());
+    QPushButton *b = qobject_cast<QPushButton *>(sender());
 
-	if (!scanProc.isRunning()) //start scan process
-	{
+    if (!scanProc.isRunning()) //start scan process
+    {
         m_webcam.start();
-		scanProc.SetMesh(mesh);
-		scanProc.SetGLArea(gla);
-		scanProc.start();
-		b->setText("Stop Scan");
+        scanProc.SetMesh(mesh);
+        scanProc.SetGLArea(gla);
+        scanProc.start();
+        b->setText("Stop Scan");
 
-	}
-	else //stop scan process
-	{
+    }
+    else //stop scan process
+    {
         m_webcam.stop();
-		scanProc.stop();
-		b->setText("Start Scan");
-	}
+        scanProc.stop();
+        b->setText("Start Scan");
+    }
 }
 
 void Edit3DScanPlugin::webCam(int checkState)
 {
-	if (checkState == Qt::Checked)
-	{
+    if (checkState == Qt::Checked)
+    {
 #if RENDER_USING_OPENGL
         if (webCamDlg == NULL)
-		{
-			webCamDlg = new WebCamDlg;
+        {
+            webCamDlg = new WebCamDlg;
             connect(webCamDlg, SIGNAL(SGN_Closing()), this, SLOT(camWndClosed()));
-		}
+        }
         webCamDlg->show();
 #else
         if (cameraPreviewDlg == NULL)
@@ -200,10 +200,9 @@ void Edit3DScanPlugin::webCam(int checkState)
         cameraPreviewDlg->show();
 #endif
         m_webcam.start();
-
-	}
-	else
-	{
+    }
+    else
+    {
         m_webcam.stop();
 #if RENDER_USING_OPENGL
         webCamDlg->hide();
@@ -215,7 +214,7 @@ void Edit3DScanPlugin::webCam(int checkState)
 
 void Edit3DScanPlugin::camWndClosed()
 {
-	scanDialog->ui.webCam->setCheckState(Qt::Unchecked);
+    scanDialog->ui.webCam->setCheckState(Qt::Unchecked);
 }
 
 void Edit3DScanPlugin::updateFrame()

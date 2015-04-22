@@ -39,46 +39,46 @@ using namespace cv;
 
 class Edit3DScanPlugin : public QObject, public MeshEditInterface
 {
-	Q_OBJECT
-	Q_INTERFACES(MeshEditInterface)
-		
+    Q_OBJECT
+    Q_INTERFACES(MeshEditInterface)
+        
 public:
     Edit3DScanPlugin();
-	virtual ~Edit3DScanPlugin();
+    virtual ~Edit3DScanPlugin();
 
     static const QString Info();
 
-	virtual bool isSingleMeshEdit() const { return false; }
-	virtual void LayerChanged(MeshDocument &md, MeshModel &oldMeshModel, GLArea *parent) {}
+    virtual bool isSingleMeshEdit() const { return false; }
+    virtual void LayerChanged(MeshDocument &md, MeshModel &oldMeshModel, GLArea *parent) {}
 
-	virtual bool StartEdit(MeshDocument &/*m*/, GLArea * /*parent*/);
+    virtual bool StartEdit(MeshDocument &/*m*/, GLArea * /*parent*/);
     virtual void EndEdit(MeshModel &/*m*/, GLArea * /*parent*/);
     virtual void Decorate (MeshModel &/*m*/, GLArea * ){};
     virtual void mousePressEvent(QMouseEvent *, MeshModel &, GLArea * );
     virtual void mouseMoveEvent(QMouseEvent *, MeshModel &, GLArea * );
     virtual void mouseReleaseEvent(QMouseEvent *event, MeshModel &/*m*/, GLArea * );
-	virtual void wheelEvent(QWheelEvent*, MeshModel &/*m*/, GLArea *);
-		
+    virtual void wheelEvent(QWheelEvent*, MeshModel &/*m*/, GLArea *);
+        
 private:
-	ScanDialog *scanDialog;
+    ScanDialog *scanDialog;
 #if RENDER_USING_OPENGL
     WebCamDlg *webCamDlg;
 #else
     CameraPreviewDlg *cameraPreviewDlg;
 #endif
-	GLArea *gla;
-	MeshDocument *md;
-	MeshModel *mesh;
-	ScanProc scanProc;
+    GLArea *gla;
+    MeshDocument *md;
+    MeshModel *mesh;
+    ScanProc scanProc;
     webcam m_webcam;
 
-	void releaseResource();
+    void releaseResource();
 
 private Q_SLOTS:
-	void procScan(); //click Start/Stop Scan button
-	void webCam(int checkState); //change Web Camera Preivew checkbox
-	void camWndClosed();
-	void updateFrame();
+    void procScan(); //click Start/Stop Scan button
+    void webCam(int checkState); //change Web Camera Preivew checkbox
+    void camWndClosed();
+    void updateFrame();
 };
 
 #endif

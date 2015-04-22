@@ -25,7 +25,6 @@ webcam::~webcam()
 
 void webcam::start()
 {
-
     if (m_iRefCount == 0)
     {
         Q_ASSERT(m_vcap == NULL);
