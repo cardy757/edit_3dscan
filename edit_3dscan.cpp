@@ -242,18 +242,11 @@ void Edit3DScanPlugin::updateFrame()
 	QImage image(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
 	image = image.rgbSwapped();
 
-    static bool bTest = true;
-    if (bTest)
-    {
-        QString str = "test.jpg";
-        bool bResult = image.save(str,"JPEG");
-        bTest = false;
-    }
-
 #if RENDER_USING_OPENGL
     webCamDlg->updateFrame(image);
 #else
     cameraPreviewDlg->updateFrame(image);
 #endif
 	//send the captured frame to ScanProc for futher processing
+    scanProc.updateFrame(image);
 }
