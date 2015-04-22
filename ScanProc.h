@@ -9,6 +9,8 @@
 #include <opencv2/imgproc/types_c.h>
 #include <opencv2/highgui.hpp>
 
+using namespace cv;
+
 class ScanProc : public QThread
 {
 	Q_OBJECT
@@ -22,7 +24,7 @@ public:
 
 	void run();
 	void stop();
-    void updateFrame(QImage& image);
+    void updateFrame(Mat &image);
 
 private:
 	QMutex mutex;
@@ -31,9 +33,10 @@ private:
 
 	MeshModel *mesh;
 	GLArea *gla;
-    QImage m_image;
+    Mat m_image;
+    bool bGotImage;
 
-    cv::Mat DetectLaser(cv::Mat &laserOn, cv::Mat &laserOff);
+    Mat DetectLaser(Mat &laserOn, Mat &laserOff);
 };
 
 #endif // SCANPROC_H

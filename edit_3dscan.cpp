@@ -230,11 +230,17 @@ void Edit3DScanPlugin::updateFrame()
         image = image.rgbSwapped();
 
 #if RENDER_USING_OPENGL
-        webCamDlg->updateFrame(image);
+        if (webCamDlg != NULL)
+        {
+            webCamDlg->updateFrame(image);
+        }
 #else
-        cameraPreviewDlg->updateFrame(image);
+        if (cameraPreviewDlg != NULL)
+        {
+            cameraPreviewDlg->updateFrame(image);
+        }
 #endif
         //send the captured frame to ScanProc for futher processing
-        scanProc.updateFrame(image);
+        scanProc.updateFrame(matImage);
     }
 }

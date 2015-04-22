@@ -6,6 +6,7 @@ ScanProc::ScanProc(QObject *parent)
 	fstop = false;
 	mesh = NULL;
 	gla = NULL;
+    bGotImage = false;
 }
 
 ScanProc::~ScanProc()
@@ -15,14 +16,18 @@ ScanProc::~ScanProc()
 
 void ScanProc::run()
 {
+    while (!bGotImage)
+    {
+        msleep(1000);
+    }
+
     // turn on laser
     // todo
 
     // get one image
     m_mutexImage.lock();
-    QImage imageLaserOn = m_image;
+    Mat matLaserOn = m_image;
     m_mutexImage.unlock();
-    imageLaserOn.save(QString("LaserOn.jpg"),"JPEG");
 
     // turn off laser
     // todo
@@ -32,19 +37,9 @@ void ScanProc::run()
 
     // get one image
     m_mutexImage.lock();
-    QImage imageLaserOff = m_image;
+    Mat matLaserOff = m_image;
     m_mutexImage.unlock();
-    imageLaserOff.save(QString("LaserOff.jpg"),"JPEG");
 
-    // detec laser
-    cv::Mat matLaserOn(imageLaserOn.height(),
-                       imageLaserOn.width(),
-                CV_8UC3,
-                (uchar*)imageLaserOn.bits(), imageLaserOn.bytesPerLine());
-    cv::Mat matLaserOff(imageLaserOff.height(),
-                imageLaserOff.width(),
-                CV_8UC3,
-                (uchar*)imageLaserOff.bits(), imageLaserOff.bytesPerLine());
     DetectLaser(matLaserOn, matLaserOff);
 
 	if (mesh && gla)
@@ -92,61 +87,76 @@ void ScanProc::stop()
 {
 	QMutexLocker locker(&mutex);
     fstop = true;
+    bGotImage = false;
 }
 
-void ScanProc::updateFrame(QImage& image)
+void ScanProc::updateFrame(Mat &image)
 {
     QMutexLocker locker(&m_mutexImage);
     m_image = image;
+    bGotImage = true;
 }
 
-cv::Mat ScanProc::DetectLaser(cv::Mat &laserOn, cv::Mat &laserOff)
+Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)
 {
     unsigned int cols = laserOn.cols;
     unsigned int rows = laserOn.rows;
-    cv::Mat grayLaserOn(rows,cols,CV_8U,cv::Scalar(0));
-    cv::Mat grayLaserOff(rows,cols,CV_8U,cv::Scalar(0));
-    cv::Mat diffImage(rows,cols,CV_8U,cv::Scalar(0));
-    cv::Mat gaussImage(rows,cols,CV_8U,cv::Scalar(0));
-    cv::Mat laserImage(rows,cols,CV_8U,cv::Scalar(0));
-    cv::Mat result(rows,cols,CV_8UC3,cv::Scalar(0));
+    Mat grayLaserOn(rows,cols,CV_8U,Scalar(0));
+    Mat grayLaserOff(rows,cols,CV_8U,Scalar(0));
+    Mat diffImage(rows,cols,CV_8U,Scalar(0));
+    Mat gaussImage(rows,cols,CV_8U,Scalar(0));
+    Mat laserImage(rows,cols,CV_8U,Scalar(0));
+    Mat result(rows,cols,CV_8UC3,Scalar(0));
 
     // convert to grayscale
-    cv::cvtColor(laserOn, grayLaserOn, CV_RGB2GRAY);
-    cv::cvtColor(laserOff, grayLaserOff, CV_RGB2GRAY);
+    imshow("laserOn", laserOn);
+    msleep(3000);
+    destroyAllWindows();
+
+    QImage imglaserOn((uchar*)laserOn.data, laserOn.cols, laserOn.rows, QImage::Format_RGB888);
+    imglaserOn.save(QString("laserOn.jpg"),"JPEG");
+
+    imshow("laserOff", laserOff);
+    msleep(3000);
+    destroyAllWindows();
+
+    QImage imglaserOff((uchar*)laserOff.data, laserOff.cols, laserOff.rows, QImage::Format_RGB888);
+    imglaserOff.save(QString("laserOff.jpg"),"JPEG");
+
+    cvtColor(laserOn, grayLaserOn, CV_RGB2GRAY);
+    cvtColor(laserOff, grayLaserOff, CV_RGB2GRAY);
 
     // diff image
-    cv::subtract(grayLaserOn,grayLaserOff,diffImage);
-    cv::namedWindow("laserLine");
-    cv::imshow("diff", diffImage);
+    subtract(grayLaserOn,grayLaserOff,diffImage);
+    imshow("diff", diffImage);
     msleep(3000);
-    cv::destroyAllWindows();
+    destroyAllWindows();
 
     // apply gaussian
-    cv::GaussianBlur(diffImage,gaussImage,cv::Size(15,15),12,12);
+    GaussianBlur(diffImage,gaussImage,Size(15,15),12,12);
     diffImage = diffImage-gaussImage;
-    cv::imshow("gaussian", diffImage);
+    imshow("gaussian", diffImage);
     msleep(3000);
-    cv::destroyAllWindows();
+    destroyAllWindows();
 
     // apply threshold
     double threshold = 10;
-    cv::threshold(diffImage,diffImage,threshold,255,cv::THRESH_TOZERO);
-    cv::imshow("threshold", diffImage);
+    cv::threshold(diffImage, diffImage, threshold, 255, THRESH_TOZERO);
+    imshow("threshold", diffImage);
     msleep(3000);
-    cv::destroyAllWindows();
+    destroyAllWindows();
 
     // apply erode
-    cv::erode(diffImage,diffImage,cv::Mat(3,3,CV_8U,cv::Scalar(1)) );
-    cv::imshow("erode", diffImage);
+    erode(diffImage,diffImage,Mat(3,3,CV_8U,Scalar(1)) );
+    imshow("erode", diffImage);
     msleep(3000);
-    cv::destroyAllWindows();
+    destroyAllWindows();
 
     // apply canny
-    cv::Canny(diffImage,diffImage,20,50);
-    cv::imshow("canny", diffImage);
+    Canny(diffImage,diffImage,20,50);
+    imshow("canny", diffImage);
     msleep(3000);
-    cv::destroyAllWindows();
+    destroyAllWindows();
 
     int edges[cols]; //contains the cols index of the detected edges per row
     for(unsigned int y = 0; y < rows; y++)
@@ -178,16 +188,16 @@ cv::Mat ScanProc::DetectLaser(cv::Mat &laserOn, cv::Mat &laserOff)
         }
     }
 
-    cv::imshow("laserLine", laserImage);
+    imshow("laserLine", laserImage);
     msleep(3000);
-    cv::destroyAllWindows();
+    destroyAllWindows();
 
-    cv::cvtColor(laserImage, result, CV_GRAY2RGB); //convert back ro rgb
-    cv::imshow("laserLine color", result);
+    cvtColor(laserImage, result, CV_GRAY2RGB); //convert back ro rgb
+    imshow("laserLine color", result);
     msleep(3000);
-    cv::destroyAllWindows();
+    destroyAllWindows();
 
-    QImage imgResult((uchar*)result.data, result.cols, laserImage.rows, QImage::Format_RGB888);
+    QImage imgResult((uchar*)result.data, result.cols, result.rows, QImage::Format_RGB888);
     imgResult.save(QString("result.jpg"),"JPEG");
 
     return result;
