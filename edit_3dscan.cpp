@@ -32,7 +32,9 @@ $Log: meshedit.cpp,v $
 #include <wrap/gl/pick.h>
 #include <wrap/qt/gl_label.h>
 #include "opencv2/highgui/highgui.hpp"
+#ifndef WIN32
 #include "opencv2/videoio/videoio_c.h" // need for CV_CAP_PROP... ??
+#endif
 
 using namespace std;
 using namespace vcg;
@@ -53,7 +55,7 @@ Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this)
 	timer = NULL;
 }
 
-Edit3DScanPlugin::~Edit3DScanPlugin() //TODO: close meshlab without stop edit will not call destructor?
+Edit3DScanPlugin::~Edit3DScanPlugin()
 {
 	releaseResource();
 }
