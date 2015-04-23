@@ -108,12 +108,12 @@ Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)
     Mat laserImage(rows,cols,CV_8U,Scalar(0));
     Mat result(rows,cols,CV_8UC3,Scalar(0));
 
-    // convert to grayscale
     imshow("laserOn", laserOn);
     msleep(3000);
     destroyAllWindows();
 
     QImage imglaserOn((uchar*)laserOn.data, laserOn.cols, laserOn.rows, QImage::Format_RGB888);
+    imglaserOn = imglaserOn.rgbSwapped();
     imglaserOn.save(QString("laserOn.jpg"),"JPEG");
 
     imshow("laserOff", laserOff);
@@ -121,10 +121,20 @@ Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)
     destroyAllWindows();
 
     QImage imglaserOff((uchar*)laserOff.data, laserOff.cols, laserOff.rows, QImage::Format_RGB888);
+    imglaserOff = imglaserOff.rgbSwapped();
     imglaserOff.save(QString("laserOff.jpg"),"JPEG");
 
-    cvtColor(laserOn, grayLaserOn, CV_RGB2GRAY);
-    cvtColor(laserOff, grayLaserOff, CV_RGB2GRAY);
+    // convert to grayscale
+    cvtColor(laserOn, grayLaserOn, CV_BGR2GRAY);
+    cvtColor(laserOff, grayLaserOff, CV_BGR2GRAY);
+
+    imshow("grayLaserOn", grayLaserOn);
+    msleep(3000);
+    destroyAllWindows();
+
+    imshow("grayLaserOff", grayLaserOff);
+    msleep(3000);
+    destroyAllWindows();
 
     // diff image
     subtract(grayLaserOn,grayLaserOff,diffImage);
