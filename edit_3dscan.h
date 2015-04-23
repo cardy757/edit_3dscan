@@ -32,6 +32,7 @@
 #include "webcamdlg.h"
 #include "camerapreviewdlg.h"
 #include "webcam.h"
+#include "configuration.h"
 
 #define RENDER_USING_OPENGL 0
 
@@ -58,6 +59,8 @@ public:
     virtual void mouseMoveEvent(QMouseEvent *, MeshModel &, GLArea * );
     virtual void mouseReleaseEvent(QMouseEvent *event, MeshModel &/*m*/, GLArea * );
     virtual void wheelEvent(QWheelEvent*, MeshModel &/*m*/, GLArea *);
+
+    static configuration* config;
         
 private:
     ScanDialog *scanDialog;
