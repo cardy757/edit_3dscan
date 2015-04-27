@@ -8,6 +8,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/types_c.h>
 #include <opencv2/highgui/highgui.hpp>
+#include "geometries.h"
 
 using namespace cv;
 
@@ -37,6 +38,9 @@ private:
     bool bGotImage;
 
     Mat DetectLaser(Mat &laserOn, Mat &laserOff);
+    void MapLaserPointToGlobalPoint(Mat &laserLine, Mat &laserOff);
+    CvPoint convertFSPointToCvPoint(GlobalPoint fsPoint);
+    GlobalPoint convertCvPointToGlobalPoint(CvPoint cvPoint);
 };
 
 #endif // SCANPROC_H

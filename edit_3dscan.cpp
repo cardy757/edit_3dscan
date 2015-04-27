@@ -42,6 +42,7 @@ using namespace vcg;
 using namespace cv;
 
 configuration* Edit3DScanPlugin::config = new configuration();
+FSTurntable* Edit3DScanPlugin::turntable = new FSTurntable();
 
 Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this)
 {

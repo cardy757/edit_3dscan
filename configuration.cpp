@@ -40,6 +40,10 @@ void configuration::setDefaultValues()
     LASER_POS_Y = 6.4f;  //not needed/used for calculations
     LASER_POS_Z = 28.8f; //precise by construction
 
+    LASER_POS_ON_BACK_PLANE_X = 0.0f;
+    LASER_POS_ON_BACK_PLANE_Y = 6.4f;
+    LASER_POS_ON_BACK_PLANE_Z = 0.0f;
+
     LASER_SWIPE_MIN = 18.0f;
     LASER_SWIPE_MAX = 52.0f;
 
@@ -104,3 +108,25 @@ void configuration::interprate()
 {
     this->goodInput = true;
 }
+
+GlobalPoint configuration::getCameraPosition()
+{
+    return MakeGlobalPoint(CAM_POS_X,
+                           CAM_POS_Y,
+                           CAM_POS_Z);
+}
+
+GlobalPoint configuration::getLaserPosition()
+{
+    return MakeGlobalPoint(LASER_POS_X,
+                           LASER_POS_Y,
+                           LASER_POS_Z);
+}
+
+GlobalPoint configuration::getLaserPositionOnBackPlane()
+{
+    return MakeGlobalPoint(LASER_POS_ON_BACK_PLANE_X,
+                           LASER_POS_ON_BACK_PLANE_Y,
+                           LASER_POS_ON_BACK_PLANE_Z);
+}
+

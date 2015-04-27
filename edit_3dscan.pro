@@ -10,7 +10,10 @@ HEADERS       = edit_3dscan_factory.h \
                 edit_3dscan.h \
                 camerapreviewdlg.h \
                 webcam.h \
-                configuration.h
+                configuration.h \
+                geometries.h \
+                turntable.h \
+                serial.h
 
 SOURCES       = edit_3dscan_factory.cpp \
                 edit_3dscan.cpp \
@@ -20,7 +23,9 @@ SOURCES       = edit_3dscan_factory.cpp \
                 webcamdlg.cpp \
                 camerapreviewdlg.cpp \
                 webcam.cpp \
-                configuration.cpp
+                configuration.cpp \
+                turntable.cpp \
+                serial.cpp
 				
 
 TARGET        = edit_3dscan

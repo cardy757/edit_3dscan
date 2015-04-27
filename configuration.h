@@ -2,6 +2,7 @@
 #define CONFIGURATION_H
 
 #include <opencv2/core/core.hpp>
+#include "geometries.h"
 
 using namespace cv;
 using namespace std;
@@ -34,6 +35,11 @@ public:
     float LASER_POS_Y; //not needed/used for calculations
     float LASER_POS_Z; //precise by construction
 
+    //position of the laser on the back plane
+    float LASER_POS_ON_BACK_PLANE_X;
+    float LASER_POS_ON_BACK_PLANE_Y;
+    float LASER_POS_ON_BACK_PLANE_Z;
+
     float LASER_SWIPE_MIN;
     float LASER_SWIPE_MAX;
 
@@ -57,6 +63,9 @@ public:
     void read(const FileNode& node);                          //Read serialization for this class
     bool readConfiguration();
     void interprate();
+    GlobalPoint getCameraPosition();
+    GlobalPoint getLaserPosition();
+    GlobalPoint getLaserPositionOnBackPlane();
 };
 
 static void read(const FileNode& node, configuration& x, const configuration& default_value = configuration())
