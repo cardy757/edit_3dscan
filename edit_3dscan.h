@@ -32,6 +32,8 @@
 #include "webcamdlg.h"
 #include "camerapreviewdlg.h"
 #include "webcam.h"
+#include "configuration.h"
+#include "turntable.h"
 
 #define RENDER_USING_OPENGL 0
 
@@ -58,6 +60,12 @@ public:
     virtual void mouseMoveEvent(QMouseEvent *, MeshModel &, GLArea * );
     virtual void mouseReleaseEvent(QMouseEvent *event, MeshModel &/*m*/, GLArea * );
     virtual void wheelEvent(QWheelEvent*, MeshModel &/*m*/, GLArea *);
+
+    static configuration* config;
+    static configuration* getConfiguration() { return config; }
+
+    static FSTurntable* turntable;
+    static FSTurntable* getTurntable() { return turntable; }
         
 private:
     ScanDialog *scanDialog;

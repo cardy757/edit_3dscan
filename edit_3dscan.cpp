@@ -41,6 +41,9 @@ using namespace std;
 using namespace vcg;
 using namespace cv;
 
+configuration* Edit3DScanPlugin::config = new configuration();
+FSTurntable* Edit3DScanPlugin::turntable = new FSTurntable();
+
 Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this)
 {
     scanDialog = NULL;
@@ -54,6 +57,10 @@ Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this)
     gla = NULL;
     md = NULL;
     mesh = NULL;
+
+    if(Edit3DScanPlugin::config->readConfiguration())
+    {
+    }
 }
 
 Edit3DScanPlugin::~Edit3DScanPlugin()

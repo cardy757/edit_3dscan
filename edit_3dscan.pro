@@ -9,7 +9,11 @@ HEADERS       = edit_3dscan_factory.h \
                 webcamdlg.h \
                 edit_3dscan.h \
                 camerapreviewdlg.h \
-                webcam.h
+                webcam.h \
+                configuration.h \
+                geometries.h \
+                turntable.h \
+                serial.h
 
 SOURCES       = edit_3dscan_factory.cpp \
                 edit_3dscan.cpp \
@@ -18,7 +22,10 @@ SOURCES       = edit_3dscan_factory.cpp \
                 myopenglwidget.cpp \
                 webcamdlg.cpp \
                 camerapreviewdlg.cpp \
-                webcam.cpp
+                webcam.cpp \
+                configuration.cpp \
+                turntable.cpp \
+                serial.cpp
 				
 
 TARGET        = edit_3dscan
