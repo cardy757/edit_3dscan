@@ -57,16 +57,8 @@ void CameraPreviewDlg::paintEvent(QPaintEvent * event)
 {
     setWindowTitle(m_title);
 
-    QRect rect(0, 0, width(), height());
-    backingStore()->beginPaint(rect);
-
-    QPaintDevice *device = backingStore()->paintDevice();
-    QPainter painter(device);
-
+    QPainter painter(this);
     painter.drawImage(QRect(0, 0, width(), height()), m_image, QRect(0, 0, m_image.width(), m_image.height()));
-
-    backingStore()->endPaint();
-    backingStore()->flush(rect);
 }
 
 void CameraPreviewDlg::closeEvent(QCloseEvent * /*event*/)
