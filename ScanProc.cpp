@@ -34,7 +34,7 @@ void ScanProc::run()
 #ifdef WIN32
     Mat matLaserOn = imread("input_laser_on.jpg", CV_LOAD_IMAGE_COLOR);
 #else
-    matLaserOn = imread("/Users/justin/MeshLabSrc/laserOn.jpg");
+    Mat matLaserOn = imread("/Users/justin/MeshLabSrc/laserOn.jpg");
 #endif
     m_mutexImage.unlock();
 
@@ -50,7 +50,7 @@ void ScanProc::run()
     //Mat matLaserOff = m_image;
     Mat matLaserOff = imread("input_laser_off.jpg", CV_LOAD_IMAGE_COLOR);
 #else
-    matLaserOff = imread("/Users/justin/MeshLabSrc/laserOff.jpg");
+    Mat matLaserOff = imread("/Users/justin/MeshLabSrc/laserOff.jpg");
 #endif
     m_mutexImage.unlock();
 
