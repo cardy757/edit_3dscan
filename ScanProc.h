@@ -9,6 +9,8 @@
 #include <opencv2/imgproc/types_c.h>
 #include <opencv2/highgui/highgui.hpp>
 
+class CameraPreviewDlg;
+
 using namespace cv;
 
 class ScanProc : public QThread
@@ -21,6 +23,7 @@ public:
 
     void SetMesh(MeshModel *m) { mesh = m; }
     void SetGLArea(GLArea* g) { gla = g; }
+    void SetPreviewWnd(CameraPreviewDlg *p) { pPreviewWnd = p; }
 
     void run();
     void stop();
@@ -35,6 +38,8 @@ private:
     GLArea *gla;
     Mat m_image;
     bool bGotImage;
+
+    CameraPreviewDlg* pPreviewWnd;
 
     Mat DetectLaser(Mat &laserOn, Mat &laserOff);
 };

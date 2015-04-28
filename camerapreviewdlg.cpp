@@ -1,140 +1,75 @@
-/****************************************************************************
-**
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of Digia Plc and its Subsidiary(-ies) nor the names
-**     of its contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
-**
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
-
 #include "camerapreviewdlg.h"
 
-//! [1]
-CameraPreviewDlg::CameraPreviewDlg(QWindow *parent)
-    : QWindow(parent)
-    , m_update_pending(false)
+CameraPreviewDlg::CameraPreviewDlg(QWidget *parent)
+    : QDockWidget(parent)
 {
-    m_backingStore = new QBackingStore(this);
-    create();
+    setFloating(true);
+    setAllowedAreas(Qt::NoDockWidgetArea);
 
-    setGeometry(100, 100, 640, 480);
-    QSize size(640, 480);
+    QSize size(1280, 720);
+    setFixedSize(size);
     setMaximumSize(size);
     setMinimumSize(size);
 
-    setFlags(flags() | Qt::WindowStaysOnTopHint);
+    //build gray scale color table
+    for (int i = 0; i < 256; i++)
+        m_grayColorTable.push_back(QColor(i, i, i).rgb());
 }
-//! [1]
 
-
-//! [7]
-bool CameraPreviewDlg::event(QEvent *event)
+void CameraPreviewDlg::setSize(QSize size)
 {
-    if (event->type() == QEvent::UpdateRequest) {
-        m_update_pending = false;
-        renderNow();
-        return true;
+    setFixedSize(size);
+    setMaximumSize(size);
+    setMinimumSize(size);
+}
+
+void CameraPreviewDlg::updateFrame(QImage& image, QString caption)
+{
+    m_image = image;
+    m_title = caption;
+    update();
+}
+
+void CameraPreviewDlg::updateFrame(Mat& mat, QString caption)
+{
+    QImage image;
+
+    if (mat.type() == CV_8UC3) //bgr image
+    {
+        image = QImage((uchar*)mat.data, mat.cols, mat.rows, QImage::Format_RGB888);
+        image = image.rgbSwapped();
     }
-    return QWindow::event(event);
-}
-//! [7]
-
-//! [6]
-void CameraPreviewDlg::renderLater()
-{
-    if (!m_update_pending) {
-        m_update_pending = true;
-        QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
+    else if (mat.type() == CV_8UC1) //gray scale image
+    {
+        image = QImage(mat.data, mat.cols, mat.rows, QImage::Format_Indexed8);
+        image.setColorTable(m_grayColorTable);
     }
-}
-//! [6]
-
-
-//! [5]
-void CameraPreviewDlg::resizeEvent(QResizeEvent *resizeEvent)
-{
-    m_backingStore->resize(resizeEvent->size());
-    if (isExposed())
-        renderNow();
-}
-//! [5]
-
-//! [2]
-void CameraPreviewDlg::exposeEvent(QExposeEvent *)
-{
-    if (isExposed()) {
-        renderNow();
+    else
+    {
+        Q_ASSERT(0); //other formats are not suported
     }
+
+    //image.save(QString("laserOn.jpg"), "JPEG");
+    updateFrame(image, caption);
 }
-//! [2]
 
-
-//! [3]
-void CameraPreviewDlg::renderNow()
+void CameraPreviewDlg::paintEvent(QPaintEvent * event)
 {
-    if (!isExposed())
-        return;
+    setWindowTitle(m_title);
 
     QRect rect(0, 0, width(), height());
-    m_backingStore->beginPaint(rect);
+    backingStore()->beginPaint(rect);
 
-    QPaintDevice *device = m_backingStore->paintDevice();
+    QPaintDevice *device = backingStore()->paintDevice();
     QPainter painter(device);
 
-    painter.fillRect(0, 0, width(), height(), Qt::white);
-    render(&painter);
+    painter.drawImage(QRect(0, 0, width(), height()), m_image, QRect(0, 0, m_image.width(), m_image.height()));
 
-    m_backingStore->endPaint();
-    m_backingStore->flush(rect);
-}
-//! [3]
-
-//! [4]
-void CameraPreviewDlg::render(QPainter *painter)
-{
-    painter->drawImage(0, 0, m_image);
-    painter->drawText(QRectF(0, 0, width(), height()), Qt::AlignCenter, QStringLiteral("QWindow"));
-}
-//! [4]
-
-void CameraPreviewDlg::updateFrame(QImage& image)
-{
-    m_image = image.scaled(640, 480);
-    renderNow();
+    backingStore()->endPaint();
+    backingStore()->flush(rect);
 }
 
-void CameraPreviewDlg::hideEvent(QHideEvent * /*event*/)
+void CameraPreviewDlg::closeEvent(QCloseEvent * /*event*/)
 {
     emit SGN_Closing();
 }

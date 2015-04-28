@@ -49,6 +49,8 @@ Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this)
 #else
     cameraPreviewDlg = NULL;
 #endif
+    calcResDlg = NULL;
+
     gla = NULL;
     md = NULL;
     mesh = NULL;
@@ -74,6 +76,12 @@ void Edit3DScanPlugin::releaseResource()
         cameraPreviewDlg = NULL;
     }
 #endif
+    if (calcResDlg != NULL)
+    {
+        delete calcResDlg;
+        calcResDlg = NULL;
+    }
+
     if (scanDialog != NULL)
     {
         delete scanDialog;
@@ -127,6 +135,7 @@ bool Edit3DScanPlugin::StartEdit(MeshDocument &m, GLArea *parent)
 {
     this->md = &m;
     this->gla = parent;
+
     if (md->mm() == NULL)
     {
         RenderMode rm;
@@ -147,6 +156,11 @@ bool Edit3DScanPlugin::StartEdit(MeshDocument &m, GLArea *parent)
     }
     scanDialog->show();
 
+    if (calcResDlg == NULL)
+    {
+        calcResDlg = new CameraPreviewDlg(gla->window());
+    }
+
     // todo, not a good design?
     connect(&(m_webcam.m_timer), SIGNAL(timeout()), this, SLOT(updateFrame()));
 
@@ -165,15 +179,17 @@ void Edit3DScanPlugin::procScan()
     if (!scanProc.isRunning()) //start scan process
     {
         m_webcam.start();
+        calcResDlg->show();
+        scanProc.SetPreviewWnd(calcResDlg);
         scanProc.SetMesh(mesh);
         scanProc.SetGLArea(gla);
         scanProc.start();
         b->setText("Stop Scan");
-
     }
     else //stop scan process
     {
         m_webcam.stop();
+        calcResDlg->hide();
         scanProc.stop();
         b->setText("Start Scan");
     }
@@ -193,7 +209,8 @@ void Edit3DScanPlugin::webCam(int checkState)
 #else
         if (cameraPreviewDlg == NULL)
         {
-            cameraPreviewDlg = new CameraPreviewDlg;
+            cameraPreviewDlg = new CameraPreviewDlg(gla->window());
+            cameraPreviewDlg->setSize(QSize(640, 360));
             connect(cameraPreviewDlg, SIGNAL(SGN_Closing()), this, SLOT(camWndClosed()));
 
         }

@@ -13,7 +13,7 @@ webcam::webcam(): m_timer(this)
 
 webcam::~webcam()
 {
-    Q_ASSERT(m_iRefCount == 0);
+    //Q_ASSERT(m_iRefCount == 0);
     if (m_vcap != NULL)
     {
         m_vcap->release();

@@ -66,6 +66,8 @@ private:
 #else
     CameraPreviewDlg *cameraPreviewDlg;
 #endif
+    CameraPreviewDlg *calcResDlg;
+
     GLArea *gla;
     MeshDocument *md;
     MeshModel *mesh;

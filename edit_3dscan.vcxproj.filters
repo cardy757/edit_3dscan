@@ -103,12 +103,6 @@
     <ClCompile Include="myopenglwidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Debug\moc_myopenglwidget.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Release\moc_myopenglwidget.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Debug\moc_camerapreviewdlg.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -120,6 +114,12 @@
     </ClCompile>
     <ClCompile Include="webcam.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_myopenglwidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_myopenglwidget.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -144,10 +144,10 @@
     <CustomBuild Include="webcamdlg.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="myopenglwidget.h">
+    <CustomBuild Include="camerapreviewdlg.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="camerapreviewdlg.h">
+    <CustomBuild Include="myopenglwidget.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

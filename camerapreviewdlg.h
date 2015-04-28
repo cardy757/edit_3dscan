@@ -38,41 +38,37 @@
 **
 ****************************************************************************/
 
-#ifndef RASTERWINDOW_H
-#define RASTERWINDOW_H
+#ifndef CAMERAPREVIEWDLG_H
+#define CAMERAPREVIEWDLG_H
 
-//! [1]
 #include <QtGui>
+#include <QDockWidget>
+#include <opencv2/opencv.hpp>
 
-class CameraPreviewDlg : public QWindow
+using namespace cv;
+
+class CameraPreviewDlg : public QDockWidget
 {
     Q_OBJECT
 public:
-    explicit CameraPreviewDlg(QWindow *parent = 0);
+    explicit CameraPreviewDlg(QWidget *parent = 0);
 
-    virtual void render(QPainter *painter);
-    void updateFrame(QImage& image);
-
-public slots:
-    void renderLater();
-    void renderNow();
+    void setSize(QSize size);
+    void updateFrame(QImage& image, QString caption = QString());
+    void updateFrame(Mat& mat, QString caption = QString());
 
 protected:
-    bool event(QEvent *event) Q_DECL_OVERRIDE;
-
-    void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
-    void exposeEvent(QExposeEvent *event) Q_DECL_OVERRIDE;
+    virtual void paintEvent(QPaintEvent * event);
 
 private:
-    QBackingStore *m_backingStore;
-    bool m_update_pending;
+    QString m_title;
     QImage m_image;
+    QVector<QRgb> m_grayColorTable;
+
+    virtual void closeEvent(QCloseEvent * event);
 
 Q_SIGNALS:
     void SGN_Closing();
-
-private:
-    virtual void hideEvent(QHideEvent * event);
 };
-//! [1]
-#endif // RASTERWINDOW_H
+
+#endif // CAMERAPREVIEWDLG_H
