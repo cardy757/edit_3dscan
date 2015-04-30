@@ -79,7 +79,7 @@ void Edit3DScanPlugin::releaseResource()
     if (scanProc.isRunning())
     {
         scanProc.stop();
-        while (!scanProc.isFinished());
+        scanProc.wait();
     }
 #if RENDER_USING_OPENGL
     if (webCamDlg != NULL)

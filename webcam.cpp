@@ -20,7 +20,7 @@ webcam::~webcam()
     if (m_cameraworker != NULL)
     {
         m_cameraworker->quit();
-        while (!m_cameraworker->isFinished());
+        m_cameraworker->wait();
         delete m_cameraworker;
         m_cameraworker = NULL;
     }
@@ -65,7 +65,7 @@ void webcam::stop()
         qDebug("disable camera");
 
         m_cameraworker->quit();
-        while (!m_cameraworker->isFinished());
+        m_cameraworker->wait();
         delete m_cameraworker;
         m_cameraworker = NULL;
 
