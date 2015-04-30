@@ -80,7 +80,7 @@ private:
     MeshDocument *md;
     MeshModel *mesh;
     ScanProc scanProc;
-    webcam m_webcam;
+    webcam *m_webcam;
 
     void releaseResource();
 

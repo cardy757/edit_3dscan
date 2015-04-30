@@ -57,6 +57,7 @@ Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this)
     gla = NULL;
     md = NULL;
     mesh = NULL;
+    m_webcam = NULL;
 
     if(Edit3DScanPlugin::config->readConfiguration())
     {
@@ -70,6 +71,11 @@ Edit3DScanPlugin::~Edit3DScanPlugin()
 
 void Edit3DScanPlugin::releaseResource()
 {
+    if (scanProc.isRunning())
+    {
+        scanProc.stop();
+        while (!scanProc.isFinished());
+    }
 #if RENDER_USING_OPENGL
     if (webCamDlg != NULL)
     {
@@ -83,6 +89,12 @@ void Edit3DScanPlugin::releaseResource()
         cameraPreviewDlg = NULL;
     }
 #endif
+    if (m_webcam !=NULL)
+    {
+        delete m_webcam;
+        m_webcam = NULL;
+    }
+
     if (calcResDlg != NULL)
     {
         delete calcResDlg;
@@ -168,8 +180,12 @@ bool Edit3DScanPlugin::StartEdit(MeshDocument &m, GLArea *parent)
         calcResDlg = new CameraPreviewDlg(gla->window());
     }
 
+    if (m_webcam == NULL)
+    {
+        m_webcam = new webcam();
+    }
     // todo, not a good design?
-    connect(&(m_webcam.m_timer), SIGNAL(timeout()), this, SLOT(updateFrame()));
+    connect(&(m_webcam->m_timer), SIGNAL(timeout()), this, SLOT(updateFrame()));
 
     return true;
 }
@@ -185,7 +201,7 @@ void Edit3DScanPlugin::procScan()
 
     if (!scanProc.isRunning()) //start scan process
     {
-        m_webcam.start();
+        m_webcam->start();
         calcResDlg->show();
         scanProc.SetPreviewWnd(calcResDlg);
         scanProc.SetMesh(mesh);
@@ -195,7 +211,7 @@ void Edit3DScanPlugin::procScan()
     }
     else //stop scan process
     {
-        m_webcam.stop();
+        m_webcam->stop();
         calcResDlg->hide();
         scanProc.stop();
         b->setText("Start Scan");
@@ -223,11 +239,11 @@ void Edit3DScanPlugin::webCam(int checkState)
         }
         cameraPreviewDlg->show();
 #endif
-        m_webcam.start();
+        m_webcam->start();
     }
     else
     {
-        m_webcam.stop();
+        m_webcam->stop();
 #if RENDER_USING_OPENGL
         webCamDlg->hide();
 #else
@@ -244,7 +260,7 @@ void Edit3DScanPlugin::camWndClosed()
 void Edit3DScanPlugin::updateFrame()
 {
     Mat matImage;
-    bool bSuccess = m_webcam.read(matImage); // read a new frame from video
+    bool bSuccess = m_webcam->read(matImage); // read a new frame from video
 
     Q_ASSERT(bSuccess);
     if (bSuccess)

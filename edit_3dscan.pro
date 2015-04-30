@@ -13,7 +13,8 @@ HEADERS       = edit_3dscan_factory.h \
                 configuration.h \
                 geometries.h \
                 turntable.h \
-                serial.h
+                serial.h \
+                cameraworker.h
 
 SOURCES       = edit_3dscan_factory.cpp \
                 edit_3dscan.cpp \
@@ -25,7 +26,8 @@ SOURCES       = edit_3dscan_factory.cpp \
                 webcam.cpp \
                 configuration.cpp \
                 turntable.cpp \
-                serial.cpp
+                serial.cpp \
+                cameraworker.cpp
 				
 
 TARGET        = edit_3dscan

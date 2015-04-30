@@ -9,18 +9,32 @@ webcam::webcam(): m_timer(this)
 {
     m_iRefCount = 0;
     m_vcap = NULL;
+    m_cameraworker = NULL;
 }
 
 webcam::~webcam()
 {
     //Q_ASSERT(m_iRefCount == 0);
+
+    if (m_cameraworker != NULL)
+    {
+        m_cameraworker->quit();
+        while (!m_cameraworker->isFinished());
+        delete m_cameraworker;
+        m_cameraworker = NULL;
+    }
+
+    if (m_timer.isActive())
+    {
+        m_timer.stop();
+    }
+
     if (m_vcap != NULL)
     {
         m_vcap->release();
         delete m_vcap;
         m_vcap = NULL;
     }
-    m_timer.stop();
 }
 
 void webcam::start()
@@ -40,7 +54,14 @@ void webcam::start()
         m_vcap->set(CV_CAP_PROP_FRAME_HEIGHT, 720);
 
         //timer to get new frame from camera
-        m_timer.start(30);
+#ifdef WIN32
+        m_timer.start(33);
+#else
+        m_timer.start(330);
+#endif
+
+        m_cameraworker = new cameraworker(this);
+        m_cameraworker->start();
     }
     m_iRefCount++;
 }
@@ -54,19 +75,45 @@ void webcam::stop()
         Q_ASSERT(m_vcap != NULL);
         qDebug("disable camera");
 
+        m_cameraworker->quit();
+        while (!m_cameraworker->isFinished());
+        delete m_cameraworker;
+        m_cameraworker = NULL;
+
+        m_timer.stop();
+
         m_vcap->release();
         delete m_vcap;
         m_vcap = NULL;
-
-        m_timer.stop();
     }
 }
 
 bool webcam::read(Mat& image)
 {
+    QMutexLocker locker(&m_mutexImage);
     if (m_iRefCount == 0)
     {
         return false;
     }
-    return m_vcap->read(image);
+    image = m_image.clone();
+
+    return true;
 }
+
+bool webcam::getImageFromCamera()
+{
+    if (m_iRefCount == 0)
+    {
+        return false;
+    }
+    Mat image;
+    if (m_vcap->read(image))
+    {
+        m_mutexImage.lock();
+        m_image = image.clone();
+        m_mutexImage.unlock();
+        return true;
+    }
+    return false;
+}
+
