@@ -27,6 +27,7 @@
 #include <QObject>
 #include <common/interfaces.h>
 #include <opencv2/highgui/highgui.hpp>
+#include <QTimer>
 #include "ScanProc.h"
 #include "scanDialog.h"
 #include "webcamdlg.h"
@@ -83,6 +84,7 @@ private:
     webcam *m_webcam;
 
     void releaseResource();
+    QTimer m_timer;
 
 private Q_SLOTS:
     void procScan(); //click Start/Stop Scan button

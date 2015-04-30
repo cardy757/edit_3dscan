@@ -11,6 +11,7 @@
 #include "geometries.h"
 
 class CameraPreviewDlg;
+class webcam;
 
 using namespace cv;
 
@@ -25,20 +26,19 @@ public:
     void SetMesh(MeshModel *m) { mesh = m; }
     void SetGLArea(GLArea* g) { gla = g; }
     void SetPreviewWnd(CameraPreviewDlg *p) { pPreviewWnd = p; }
+    void SetWebcam(webcam *cam) { m_webcam = cam; }
 
     void run();
     void stop();
-    void updateFrame(Mat &image);
 
 private:
     QMutex mutex;
-    QMutex m_mutexImage;
     bool fstop;
 
     MeshModel *mesh;
     GLArea *gla;
     Mat m_image;
-    bool bGotImage;
+    webcam *m_webcam;
 
     CameraPreviewDlg* pPreviewWnd;
 

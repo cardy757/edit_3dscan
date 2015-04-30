@@ -3,7 +3,6 @@
 
 #include <opencv2/highgui/highgui.hpp>
 #include <QObject>
-#include <QTimer>
 #include <cameraworker.h>
 
 using namespace cv;
@@ -19,14 +18,13 @@ public:
     bool read(Mat& image);
     bool getImageFromCamera();
 
-    QTimer m_timer;
-
 private:
     int m_iRefCount;
     VideoCapture *m_vcap;
     Mat m_image;
     cameraworker *m_cameraworker;
     QMutex m_mutexImage;
+    bool m_bGotImage;
 };
 
 #endif // WEBCAM_H

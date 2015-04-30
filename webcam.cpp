@@ -5,11 +5,12 @@
 #include "opencv2/videoio/videoio_c.h" // need for CV_CAP_PROP... ??
 #endif
 
-webcam::webcam(): m_timer(this)
+webcam::webcam()
 {
     m_iRefCount = 0;
     m_vcap = NULL;
     m_cameraworker = NULL;
+    m_bGotImage = false;
 }
 
 webcam::~webcam()
@@ -22,11 +23,6 @@ webcam::~webcam()
         while (!m_cameraworker->isFinished());
         delete m_cameraworker;
         m_cameraworker = NULL;
-    }
-
-    if (m_timer.isActive())
-    {
-        m_timer.stop();
     }
 
     if (m_vcap != NULL)
@@ -53,13 +49,6 @@ void webcam::start()
         m_vcap->set(CV_CAP_PROP_FRAME_WIDTH, 1280);
         m_vcap->set(CV_CAP_PROP_FRAME_HEIGHT, 720);
 
-        //timer to get new frame from camera
-#ifdef WIN32
-        m_timer.start(33);
-#else
-        m_timer.start(330);
-#endif
-
         m_cameraworker = new cameraworker(this);
         m_cameraworker->start();
     }
@@ -80,11 +69,10 @@ void webcam::stop()
         delete m_cameraworker;
         m_cameraworker = NULL;
 
-        m_timer.stop();
-
         m_vcap->release();
         delete m_vcap;
         m_vcap = NULL;
+        m_bGotImage = false;
     }
 }
 
@@ -93,6 +81,12 @@ bool webcam::read(Mat& image)
     QMutexLocker locker(&m_mutexImage);
     if (m_iRefCount == 0)
     {
+        return false;
+    }
+    if (!m_bGotImage)
+    {
+        static int count;
+        qDebug("!!!");
         return false;
     }
     image = m_image.clone();
@@ -112,6 +106,7 @@ bool webcam::getImageFromCamera()
         m_mutexImage.lock();
         m_image = image.clone();
         m_mutexImage.unlock();
+        m_bGotImage = true;
         return true;
     }
     return false;

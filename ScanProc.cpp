@@ -10,7 +10,7 @@ ScanProc::ScanProc(QObject *parent)
     mesh = NULL;
     gla = NULL;
     pPreviewWnd = NULL;
-    bGotImage = false;
+    m_webcam = NULL;
 }
 
 ScanProc::~ScanProc()
@@ -20,7 +20,7 @@ ScanProc::~ScanProc()
 
 void ScanProc::run()
 {
-    while (!bGotImage)
+    while (!m_webcam->read(m_image))
     {
         msleep(1000);
     }
@@ -29,14 +29,13 @@ void ScanProc::run()
     // todo
 
     // get one image
-    m_mutexImage.lock();
+    //m_webcam->read(m_image);
     //Mat matLaserOn = m_image;
 #ifdef WIN32
     Mat matLaserOn = imread("input_laser_on.jpg", CV_LOAD_IMAGE_COLOR);
 #else
     Mat matLaserOn = imread("/Users/justin/MeshLabSrc/laserOn.jpg");
 #endif
-    m_mutexImage.unlock();
 
     // turn off laser
     // todo
@@ -45,14 +44,13 @@ void ScanProc::run()
     //msleep(3000);
 
     // get one image
-    m_mutexImage.lock();
-#ifdef WIN32
+    //m_webcam->read(m_image);
     //Mat matLaserOff = m_image;
+#ifdef WIN32
     Mat matLaserOff = imread("input_laser_off.jpg", CV_LOAD_IMAGE_COLOR);
 #else
     Mat matLaserOff = imread("/Users/justin/MeshLabSrc/laserOff.jpg");
 #endif
-    m_mutexImage.unlock();
 
     Mat matLaserLine = DetectLaser(matLaserOn, matLaserOff);
     MapLaserPointToGlobalPoint(matLaserLine, matLaserOff);
@@ -102,14 +100,6 @@ void ScanProc::stop()
 {
     QMutexLocker locker(&mutex);
     fstop = true;
-    bGotImage = false;
-}
-
-void ScanProc::updateFrame(Mat &image)
-{
-    QMutexLocker locker(&m_mutexImage);
-    m_image = image;
-    bGotImage = true;
 }
 
 Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)

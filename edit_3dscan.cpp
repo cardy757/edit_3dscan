@@ -44,7 +44,7 @@ using namespace cv;
 configuration* Edit3DScanPlugin::config = new configuration();
 FSTurntable* Edit3DScanPlugin::turntable = new FSTurntable();
 
-Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this)
+Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this), m_timer(this)
 {
     scanDialog = NULL;
 #if RENDER_USING_OPENGL
@@ -71,6 +71,11 @@ Edit3DScanPlugin::~Edit3DScanPlugin()
 
 void Edit3DScanPlugin::releaseResource()
 {
+    if (m_timer.isActive())
+    {
+        m_timer.stop();
+    }
+
     if (scanProc.isRunning())
     {
         scanProc.stop();
@@ -184,8 +189,8 @@ bool Edit3DScanPlugin::StartEdit(MeshDocument &m, GLArea *parent)
     {
         m_webcam = new webcam();
     }
-    // todo, not a good design?
-    connect(&(m_webcam->m_timer), SIGNAL(timeout()), this, SLOT(updateFrame()));
+
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateFrame()));
 
     return true;
 }
@@ -206,6 +211,7 @@ void Edit3DScanPlugin::procScan()
         scanProc.SetPreviewWnd(calcResDlg);
         scanProc.SetMesh(mesh);
         scanProc.SetGLArea(gla);
+        scanProc.SetWebcam(m_webcam);
         scanProc.start();
         b->setText("Stop Scan");
     }
@@ -240,9 +246,17 @@ void Edit3DScanPlugin::webCam(int checkState)
         cameraPreviewDlg->show();
 #endif
         m_webcam->start();
+
+        //timer to get new frame from camera
+#ifdef WIN32
+        m_timer.start(33);
+#else
+        m_timer.start(330);
+#endif
     }
     else
     {
+        m_timer.stop();
         m_webcam->stop();
 #if RENDER_USING_OPENGL
         webCamDlg->hide();
@@ -262,7 +276,6 @@ void Edit3DScanPlugin::updateFrame()
     Mat matImage;
     bool bSuccess = m_webcam->read(matImage); // read a new frame from video
 
-    Q_ASSERT(bSuccess);
     if (bSuccess)
     {
         QImage image(matImage.data, matImage.cols, matImage.rows, matImage.step, QImage::Format_RGB888);
@@ -279,7 +292,5 @@ void Edit3DScanPlugin::updateFrame()
             cameraPreviewDlg->updateFrame(image);
         }
 #endif
-        //send the captured frame to ScanProc for futher processing
-        scanProc.updateFrame(matImage);
     }
 }
