@@ -36,7 +36,11 @@ void ArduinoSerial::writeChar(char c)
 
 void ArduinoSerial::SetPortName(QString name)
 {
+#ifdef WIN32
+    serialPortName = name;
+#else
     serialPortName = "/dev/cu." + name;
+#endif
 }
 
 bool ArduinoSerial::start()
