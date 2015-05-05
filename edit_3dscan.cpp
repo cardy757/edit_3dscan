@@ -32,6 +32,7 @@ $Log: meshedit.cpp,v $
 #include <wrap/gl/pick.h>
 #include <wrap/qt/gl_label.h>
 #include <QTimer>
+#include <QtSerialPort/QSerialPortInfo>
 #include "opencv2/highgui/highgui.hpp"
 #ifndef WIN32
 #include "opencv2/videoio/videoio_c.h" // need for CV_CAP_PROP... ??
@@ -43,6 +44,7 @@ using namespace cv;
 
 configuration* Edit3DScanPlugin::config = new configuration();
 FSTurntable* Edit3DScanPlugin::turntable = new FSTurntable();
+ArduinoSerial* Edit3DScanPlugin::arduino = new ArduinoSerial();
 
 Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this), m_timer(this)
 {
@@ -174,6 +176,7 @@ bool Edit3DScanPlugin::StartEdit(MeshDocument &m, GLArea *parent)
     if (scanDialog == NULL)
     {
         scanDialog = new ScanDialog(gla->window());
+        SerialPortInfoInit();
         connect(scanDialog->ui.procScan, SIGNAL(clicked()), this, SLOT(procScan()));
         connect(scanDialog->ui.webCam, SIGNAL(stateChanged(int)), this, SLOT(webCam(int)));
         connect(scanDialog, SIGNAL(SGN_Closing()), gla, SLOT(endEdit()));
@@ -206,6 +209,9 @@ void Edit3DScanPlugin::procScan()
 
     if (!scanProc.isRunning()) //start scan process
     {
+        QString serialPortName = scanDialog->ui.serialPortInfoListBox->currentText();
+        arduino->SetPortName(serialPortName);
+        arduino->start();
         m_webcam->start();
         calcResDlg->show();
         scanProc.SetPreviewWnd(calcResDlg);
@@ -217,6 +223,7 @@ void Edit3DScanPlugin::procScan()
     }
     else //stop scan process
     {
+        arduino->stop();
         m_webcam->stop();
         calcResDlg->hide();
         scanProc.stop();
@@ -292,5 +299,15 @@ void Edit3DScanPlugin::updateFrame()
             cameraPreviewDlg->updateFrame(image);
         }
 #endif
+    }
+}
+
+void Edit3DScanPlugin::SerialPortInfoInit()
+{
+    scanDialog->ui.serialPortInfoListBox->clear();
+
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+    {
+        scanDialog->ui.serialPortInfoListBox->addItem(info.portName());
     }
 }

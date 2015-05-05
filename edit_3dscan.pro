@@ -1,6 +1,6 @@
 include (../../shared.pri)
 
-QT += multimedia multimediawidgets
+QT += multimedia multimediawidgets serialport
 
 HEADERS       = edit_3dscan_factory.h \
                 scanDialog.h \

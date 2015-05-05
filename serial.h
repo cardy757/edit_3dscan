@@ -1,30 +1,31 @@
-#ifndef FSSERIAL_H
-#define FSSERIAL_H
+#ifndef ARDUINOSERIAL_H
+#define ARDUINOSERIAL_H
 
 #include <QObject>
-//#include "qextserialport-1.2rc/src/qextserialport.h"
-//#include "qextserialport-1.2rc/src/qextserialenumerator.h"
+#include <QSerialPort>
 
-//#include "staticHeaders.h"
-
-class FSSerial : public QObject
+class ArduinoSerial : public QObject
 {
 
 Q_OBJECT
 public:
-    FSSerial();
-    QString *serialPortPath;
-    bool connectToSerialPort();
+    ArduinoSerial();
+
     void writeChar(char c);
-    void writeChars(char* c);
+    void SetPortName(QString name);
+    bool start();
+    void stop();
 
 private slots:
-    void onReadyRead();
-    void onDsrChanged(bool);
+    void readData();
+    void handleError(QSerialPort::SerialPortError error);
 
 private:
-    //QextSerialPort *serialPort;
+    QSerialPort *pSerialPort;
+    QString serialPortName;
+
+    bool connectToSerialPort();
 
 };
 
-#endif // FSSERIAL_H
+#endif // ARDUINOSERIAL_H

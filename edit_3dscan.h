@@ -35,6 +35,7 @@
 #include "webcam.h"
 #include "configuration.h"
 #include "turntable.h"
+#include "serial.h"
 
 #define RENDER_USING_OPENGL 0
 
@@ -67,6 +68,9 @@ public:
 
     static FSTurntable* turntable;
     static FSTurntable* getTurntable() { return turntable; }
+
+    static ArduinoSerial* arduino;
+    static ArduinoSerial* getArduino() { return arduino; }
         
 private:
     ScanDialog *scanDialog;
@@ -82,9 +86,11 @@ private:
     MeshModel *mesh;
     ScanProc scanProc;
     webcam *m_webcam;
+    QTimer m_timer;
 
     void releaseResource();
-    QTimer m_timer;
+    void SerialPortInfoInit();
+
 
 private Q_SLOTS:
     void procScan(); //click Start/Stop Scan button

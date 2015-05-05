@@ -25,6 +25,12 @@ void ScanProc::run()
         msleep(1000);
     }
 
+    Edit3DScanPlugin::arduino->writeChar(MC_TURN_STEPPER_ON);
+    msleep(1000);
+    Edit3DScanPlugin::arduino->writeChar(MC_PERFORM_STEP);
+    msleep(1000);
+    Edit3DScanPlugin::arduino->writeChar(255);
+
     // turn on laser
     // todo
 

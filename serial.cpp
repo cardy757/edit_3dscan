@@ -1,81 +1,82 @@
 #include "serial.h"
 #include <QThread>
 
-FSSerial::FSSerial()
+ArduinoSerial::ArduinoSerial()
 {
-    serialPortPath = new QString();
+    pSerialPort = NULL;
 }
 
-bool FSSerial::connectToSerialPort()
+bool ArduinoSerial::connectToSerialPort()
 {
-#if 0
-    this->serialPort = new QextSerialPort(*serialPortPath, QextSerialPort::EventDriven);
-    serialPort->setBaudRate(BAUD9600);
-    serialPort->setFlowControl(FLOW_OFF);
-    serialPort->setParity(PAR_NONE);
-    serialPort->setDataBits(DATA_8);
-    serialPort->setStopBits(STOP_2);
-
-    if (serialPort->open(QIODevice::ReadWrite) == true) {
-        connect(serialPort, SIGNAL(readyRead()), this, SLOT(onReadyRead()) );
-        connect(serialPort, SIGNAL(dsrChanged(bool)), this, SLOT(onDsrChanged(bool)) );
-        if (!(serialPort->lineStatus() & LS_DSR)){
-            //qDebug() << "warning: device is not turned on";
-            return false;
-        }
-        //qDebug() << "listening for data on" << serialPort->portName();
-        return true;
-    }else{
-        //qDebug() << "device failed to open:" << serialPort->errorString();
-        return true;
+    pSerialPort->setPortName(serialPortName);
+    pSerialPort->setBaudRate(QSerialPort::Baud9600);
+    pSerialPort->setDataBits(QSerialPort::Data8);
+    pSerialPort->setParity(QSerialPort::NoParity);
+    pSerialPort->setStopBits(QSerialPort::OneStop);
+    pSerialPort->setFlowControl(QSerialPort::NoFlowControl);
+    if (pSerialPort->open(QIODevice::ReadWrite))
+    {
     }
-#endif
+    else
+    {
+        return false;
+    }
     return true;
 }
 
-void FSSerial::onReadyRead()
+void ArduinoSerial::writeChar(char c)
 {
-#if 0
-    QByteArray bytes;
-    int a = serialPort->bytesAvailable();
-    bytes.resize(a);
-    serialPort->read(bytes.data(), bytes.size());
-    //qDebug() << "#"<<bytes.size() <<"bytes=" << bytes.data();
-#endif
-}
-
-void FSSerial::onDsrChanged(bool)
-{
-    //qDebug("onDsrChanged");
-}
-
-void FSSerial::writeChar(char c)
-{
-#if 0
-    //qDebug() << "writing to serial port: " << (int)((unsigned char)c);
-    if( serialPortPath->isEmpty() ) return;
-    if( !serialPort->isOpen() ) return;
-    if( serialPort->isWritable() ){
-        //qDebug("is writable");
-        //usleep(100000);
-        serialPort->write(&c);
-    }else{
-       // qDebug("is not writable");
+    Q_ASSERT(pSerialPort->isOpen());
+    if (pSerialPort->isOpen())
+    {
+        pSerialPort->write(&c, 1);
+        pSerialPort->waitForBytesWritten(1000);
     }
-#endif
 }
 
-void FSSerial::writeChars(char* c)
+void ArduinoSerial::SetPortName(QString name)
 {
-#if 0
-    if( serialPortPath->isEmpty() ) return;
-    if( !serialPort->isOpen() ) return;
-    if( serialPort->isWritable() ){
-        //qDebug("is writable");
-        //usleep(100000);
-        serialPort->write(c);
-    }else{
-        //qDebug("is not writable");
+    serialPortName = "/dev/cu." + name;
+}
+
+bool ArduinoSerial::start()
+{
+    Q_ASSERT(pSerialPort == NULL);
+    if (pSerialPort == NULL)
+    {
+        pSerialPort = new QSerialPort();
+        if (connectToSerialPort())
+        {
+            connect(pSerialPort, SIGNAL(error(QSerialPort::SerialPortError)), this,
+                    SLOT(handleError(QSerialPort::SerialPortError)));
+            connect(pSerialPort, SIGNAL(readyRead()), this, SLOT(readData()));
+            return true;
+        }
+        else
+        {
+            stop();
+        }
     }
-#endif
+    return false;
+}
+
+void ArduinoSerial::stop()
+{
+    Q_ASSERT(pSerialPort != NULL);
+    if (pSerialPort != NULL)
+    {
+        pSerialPort->close();
+        delete pSerialPort;
+        pSerialPort = NULL;
+    }
+}
+
+void ArduinoSerial::readData()
+{
+    QByteArray data = pSerialPort->readAll();
+}
+
+void ArduinoSerial::handleError(QSerialPort::SerialPortError error)
+{
+
 }
