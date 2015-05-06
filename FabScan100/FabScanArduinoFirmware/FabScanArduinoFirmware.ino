@@ -30,21 +30,6 @@
 #define STEP_PIN_0    3
 #define DIR_PIN_0     4
 
-//Stepper 2, Laser Stepper
-#define ENABLE_PIN_1  8
-#define STEP_PIN_1    6
-#define DIR_PIN_1     7
-
-//Stepper 3, currently unused
-//#define ENABLE_PIN_2  11
-//#define STEP_PIN_2    12
-//#define DIR_PIN_2     13
-
-//Stepper 4, currently unused
-//#define ENABLE_PIN_3  A0
-//#define STEP_PIN_3    A1
-//#define DIR_PIN_3     A2
-
 #define TURN_LASER_OFF      200
 #define TURN_LASER_ON       201
 #define PERFORM_STEP        202
@@ -75,34 +60,25 @@
 
 int incomingByte = 0;
 int byteType = 1;
-int currStepper;
 
-LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin);
+LiquidCrystal_I2C	lcd(I2C_ADDR, En_pin, Rw_pin, Rs_pin, D4_pin, D5_pin, D6_pin, D7_pin);
 
 //current motor: turn a single step
 void step()
 {
- if(currStepper == TURNTABLE_STEPPER){
-   digitalWrite(STEP_PIN_0, LOW);
- }else if(currStepper == LASER_STEPPER){
-   digitalWrite(STEP_PIN_1, LOW);
- }
-
- delay(3);
- if(currStepper == TURNTABLE_STEPPER){
-   digitalWrite(STEP_PIN_0, HIGH);
- }else if(currStepper == LASER_STEPPER){
-   digitalWrite(STEP_PIN_1, HIGH);
- }
- delay(3);
+  digitalWrite(STEP_PIN_0, LOW);
+  delay(3);
+  digitalWrite(STEP_PIN_0, HIGH);
+  delay(3);
 }
 
 //step the current motor for <count> times
 void step(int count)
 {
-  for(int i=0; i<count; i++){
+  for (int i = 0; i < count; i++)
+  {
     step();
-    lcd.setCursor (0,1);
+    lcd.setCursor (0, 1);
     lcd.print(i);
   }
 }
@@ -110,163 +86,122 @@ void step(int count)
 void setup()
 {
 
-  lcd.begin (16,2); //  <<----- My LCD was 16x2
+  lcd.begin (16, 2); //  <<----- My LCD was 16x2
 
   // Switch on the backlight
-  lcd.setBacklightPin(BACKLIGHT_PIN,POSITIVE);
+  lcd.setBacklightPin(BACKLIGHT_PIN, POSITIVE);
   lcd.setBacklight(HIGH);
   lcd.home(); // go home
 
   lcd.print("3D Scan Ready!!!");
 
   // initialize the serial port
-   Serial.begin(9600);
-   pinMode(LASER_PIN, OUTPUT);
-   pinMode(LIGHT_PIN, OUTPUT);
+  Serial.begin(9600);
+  pinMode(LASER_PIN, OUTPUT);
 
-   pinMode(MS_PIN, OUTPUT);
-   digitalWrite(MS_PIN, HIGH);  //HIGH for 16microstepping, LOW for no microstepping
+  pinMode(MS_PIN, OUTPUT);
+  digitalWrite(MS_PIN, HIGH);  //HIGH for 16microstepping, LOW for no microstepping
 
   pinMode(ENABLE_PIN_0, OUTPUT);
   pinMode(DIR_PIN_0, OUTPUT);
   pinMode(STEP_PIN_0, OUTPUT);
 
-  pinMode(ENABLE_PIN_1, OUTPUT);
-  pinMode(DIR_PIN_1, OUTPUT);
-  pinMode(STEP_PIN_1, OUTPUT);
-
-  //pinMode(ENABLE_PIN_2, OUTPUT);
-  //pinMode(DIR_PIN_2, OUTPUT);
-  //pinMode(STEP_PIN_2, OUTPUT);
-
-  //pinMode(ENABLE_PIN_3, OUTPUT);
-  //pinMode(DIR_PIN_3, OUTPUT);
-  //pinMode(STEP_PIN_3, OUTPUT);
-
- //disable all steppers at startup
- digitalWrite(ENABLE_PIN_0, HIGH);  //HIGH to turn off
- digitalWrite(ENABLE_PIN_1, HIGH);  //HIGH to turn off
- //digitalWrite(ENABLE_PIN_2, HIGH);  //LOW to turn on
- //digitalWrite(ENABLE_PIN_3, HIGH);  //LOW to turn on
-
- digitalWrite(LIGHT_PIN, LOW); //turn light off
-
- digitalWrite(LASER_PIN, HIGH); //turn laser on
- Serial.write(FABSCAN_PONG); //send a pong back to the computer so we know setup is done and that we are actually dealing with a FabScan
-
- currStepper = TURNTABLE_STEPPER;  //turntable is default stepper
+  //disable all steppers at startup
+  digitalWrite(ENABLE_PIN_0, HIGH);  //HIGH to turn off
+  digitalWrite(LASER_PIN, LOW); //turn laser off
 }
 
 void loop()
 {
-    lcd.setCursor (0,1);
+  lcd.setCursor (0, 1);
 
-  if(Serial.available() > 0){
+  if (Serial.available() > 0)
+  {
     lcd.print("                ");
-    lcd.setCursor (0,1);
+    lcd.setCursor (0, 1);
     incomingByte = Serial.read();
-
-    switch(byteType){
+    Serial.println(incomingByte);
+    
+    switch (byteType)
+    {
       case ACTION_BYTE:
-          Serial.println(incomingByte);
-          switch(incomingByte){    //this switch always handles the first byte
-            //Laser
-            case 49:	//1
-            case TURN_LASER_OFF:
-              digitalWrite(LASER_PIN, LOW);    // turn the LASER off
-              lcd.print("TURN_LASER_OFF");
-              break;
-            case 50:	//2
-            case TURN_LASER_ON:
-              digitalWrite(LASER_PIN, HIGH);   // turn the LASER on
-              lcd.print("TURN_LASER_ON");
-              break;
-            case ROTATE_LASER: //unused
-              byteType = LASER_ROTATION;
-              lcd.print("ROTATE_LASER");
-              break;
-            //TurnTable
-            case 51:	//3
-            case PERFORM_STEP:
-              byteType = TURN_TABLE_STEPS;
-              lcd.print("PERFORM_STEP");
-              break;
-            case 52:	//4
-            case SET_DIRECTION_CW:
-              if(currStepper == TURNTABLE_STEPPER){
-                digitalWrite(DIR_PIN_0, HIGH);
-              }else if(currStepper == LASER_STEPPER){
-                digitalWrite(DIR_PIN_1, HIGH);
-              }
-              lcd.print("SET_DIRECTION_CW");
-              break;
-            case 53:	//5
-            case SET_DIRECTION_CCW:
-              if(currStepper == TURNTABLE_STEPPER){
-                digitalWrite(DIR_PIN_0, LOW);
-              }else if(currStepper == LASER_STEPPER){
-                digitalWrite(DIR_PIN_1, LOW);
-              }
-              lcd.print("SET_DIRECTION_CCW");
-              break;
-            case 54:	//6
-            case TURN_STEPPER_ON:
-              if(currStepper == TURNTABLE_STEPPER){
-                digitalWrite(ENABLE_PIN_0, LOW);
-              }else if(currStepper == LASER_STEPPER){
-                digitalWrite(ENABLE_PIN_1, LOW);
-              }
-              lcd.print("TURN_STEPPER_ON");
-              break;
-            case 55:	//7
-            case TURN_STEPPER_OFF:
-              if(currStepper == TURNTABLE_STEPPER){
-                digitalWrite(ENABLE_PIN_0, HIGH);
-              }else if(currStepper == LASER_STEPPER){
-                digitalWrite(ENABLE_PIN_1, HIGH);
-              }
-              lcd.print("TURN_STEPPER_OFF");
-              break;
-            case 56:	//8
-            case TURN_LIGHT_ON:
-              byteType = LIGHT_INTENSITY;
-              lcd.print("TURN_LIGHT_ON");
-              break;
-            case 57:	//9
-            case TURN_LIGHT_OFF:
-              digitalWrite(LIGHT_PIN, LOW);
-              lcd.print("TURN_LIGHT_OFF");
-              break;
-            case 48:	//0
-            case FABSCAN_PING:
-              delay(1);
-              Serial.write(FABSCAN_PONG);
-              lcd.print("FABSCAN_PONG");
-              break;
-            case 113:	//q
-            case SELECT_STEPPER:
-              byteType = STEPPER_ID;
-              lcd.print("SELECT_STEPPER");
-              break;
-            }
+        switch (incomingByte)
+        {  //this switch always handles the first byte
+          //Laser
+          case 49:	//1
+          case TURN_LASER_OFF:
+            digitalWrite(LASER_PIN, LOW);    // turn the LASER off
+            lcd.print("TURN_LASER_OFF");
+            break;
+          case 50:	//2
+          case TURN_LASER_ON:
+            digitalWrite(LASER_PIN, HIGH);   // turn the LASER on
+            lcd.print("TURN_LASER_ON");
+            break;
+          case ROTATE_LASER: //unused
+            byteType = LASER_ROTATION;
+            lcd.print("ROTATE_LASER");
+            break;
+          //TurnTable
+          case 51:	//3
+          case PERFORM_STEP:
+            byteType = TURN_TABLE_STEPS;
+            lcd.print("PERFORM_STEP");
+            break;
+          case 52:	//4
+          case SET_DIRECTION_CW:
+            digitalWrite(DIR_PIN_0, HIGH);
+            lcd.print("SET_DIRECTION_CW");
+            break;
+          case 53:	//5
+          case SET_DIRECTION_CCW:
+            digitalWrite(DIR_PIN_0, LOW);
+            lcd.print("SET_DIRECTION_CCW");
+            break;
+          case 54:	//6
+          case TURN_STEPPER_ON:
+            digitalWrite(ENABLE_PIN_0, LOW);
+            lcd.print("TURN_STEPPER_ON");
+            break;
+          case 55:	//7
+          case TURN_STEPPER_OFF:
+            digitalWrite(ENABLE_PIN_0, HIGH);
+            lcd.print("TURN_STEPPER_OFF");
+            break;
+          case 56:	//8
+          case TURN_LIGHT_ON:
+            byteType = LIGHT_INTENSITY;
+            lcd.print("TURN_LIGHT_ON");
+            break;
+          case 57:	//9
+          case TURN_LIGHT_OFF:
+            digitalWrite(LIGHT_PIN, LOW);
+            lcd.print("TURN_LIGHT_OFF");
+            break;
+          case 48:	//0
+          case FABSCAN_PING:
+            delay(1);
+            Serial.write(FABSCAN_PONG);
+            lcd.print("FABSCAN_PONG");
+            break;
+          case 113:	//q
+          case SELECT_STEPPER:
+            byteType = STEPPER_ID;
+            lcd.print("SELECT_STEPPER");
+            break;
+        }
 
-          break;
-       case LIGHT_INTENSITY:       //after this point we take care of the second byte if one is sent
-          analogWrite(LIGHT_PIN, incomingByte);
-          byteType = ACTION_BYTE;  //reset byteType
-          lcd.print("LIGHT_INTENSITY");
-          break;
-        case TURN_TABLE_STEPS:
-          step(incomingByte);
-          byteType = ACTION_BYTE;
-          lcd.print("TURN_TABLE_STEPS");
-          break;
-        case STEPPER_ID:
-          Serial.write(incomingByte);
-          currStepper = incomingByte;
-          byteType = ACTION_BYTE;
-          lcd.print("STEPPER_ID");
-          break;
+        break;
+      case LIGHT_INTENSITY:       //after this point we take care of the second byte if one is sent
+        analogWrite(LIGHT_PIN, incomingByte);
+        byteType = ACTION_BYTE;  //reset byteType
+        lcd.print("LIGHT_INTENSITY");
+        break;
+      case TURN_TABLE_STEPS:
+        step(incomingByte);
+        byteType = ACTION_BYTE;
+        lcd.print("TURN_TABLE_STEPS");
+        break;
     }
   }
 }
