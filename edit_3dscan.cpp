@@ -43,7 +43,7 @@ using namespace vcg;
 using namespace cv;
 
 configuration* Edit3DScanPlugin::config = new configuration();
-FSTurntable* Edit3DScanPlugin::turntable = new FSTurntable();
+Turntable* Edit3DScanPlugin::turntable = new Turntable();
 ArduinoSerial* Edit3DScanPlugin::arduino = new ArduinoSerial();
 
 Edit3DScanPlugin::Edit3DScanPlugin() : scanProc(this), m_timer(this)

@@ -34,6 +34,17 @@ void ArduinoSerial::writeChar(char c)
     }
 }
 
+void ArduinoSerial::writeChars(char* c)
+{
+    Q_ASSERT(pSerialPort->isOpen());
+
+    if (pSerialPort->isOpen())
+    {
+        pSerialPort->write(c);
+        pSerialPort->waitForBytesWritten(1000);
+    }
+}
+
 void ArduinoSerial::SetPortName(QString name)
 {
 #ifdef WIN32

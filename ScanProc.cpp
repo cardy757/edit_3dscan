@@ -25,41 +25,49 @@ void ScanProc::run()
         msleep(1000);
     }
 
-    Edit3DScanPlugin::arduino->writeChar(MC_TURN_STEPPER_ON);
-    msleep(1000);
-    Edit3DScanPlugin::arduino->writeChar(MC_PERFORM_STEP);
-    msleep(1000);
-    Edit3DScanPlugin::arduino->writeChar(255);
+    Edit3DScanPlugin::turntable->enable();
+    Edit3DScanPlugin::turntable->setDirection(FS_DIRECTION_CCW);
 
-    // turn on laser
-    // todo
+    double degreesPerStep = 360.0f/200.0f/16.0f; //the size of a microstep
+    degreesPerStep = 10; // turn faster for test
 
-    // get one image
-    //m_webcam->read(m_image);
-    //Mat matLaserOn = m_image;
+    for(double i = 0; i < 360; i += degreesPerStep)
+    {
+        // turn on laser
+        Edit3DScanPlugin::arduino->writeChar(MC_TURN_LASER_ON);
+        msleep(3000);
+        // get one image
+        m_webcam->read(m_image);
+        Mat matLaserOn = m_image;
 #ifdef WIN32
-    Mat matLaserOn = imread("input_laser_on.jpg", CV_LOAD_IMAGE_COLOR);
+        //Mat matLaserOn = imread("input_laser_on.jpg", CV_LOAD_IMAGE_COLOR);
 #else
-    Mat matLaserOn = imread("/Users/justin/MeshLabSrc/laserOn.jpg");
+        //Mat matLaserOn = imread("/Users/justin/MeshLabSrc/laserOn.jpg");
 #endif
 
-    // turn off laser
-    // todo
+        // turn off laser
+        Edit3DScanPlugin::arduino->writeChar(MC_TURN_LASER_OFF);
 
-    // delay
-    //msleep(3000);
+        // delay
+        msleep(1000);
 
-    // get one image
-    //m_webcam->read(m_image);
-    //Mat matLaserOff = m_image;
+        // get one image
+        m_webcam->read(m_image);
+        Mat matLaserOff = m_image;
 #ifdef WIN32
-    Mat matLaserOff = imread("input_laser_off.jpg", CV_LOAD_IMAGE_COLOR);
+        //Mat matLaserOff = imread("input_laser_off.jpg", CV_LOAD_IMAGE_COLOR);
 #else
-    Mat matLaserOff = imread("/Users/justin/MeshLabSrc/laserOff.jpg");
+        //Mat matLaserOff = imread("/Users/justin/MeshLabSrc/laserOff.jpg");
 #endif
 
-    Mat matLaserLine = DetectLaser(matLaserOn, matLaserOff);
-    MapLaserPointToGlobalPoint(matLaserLine, matLaserOff);
+        Mat matLaserLine = DetectLaser(matLaserOn, matLaserOff);
+        MapLaserPointToGlobalPoint(matLaserLine, matLaserOff);
+
+        //turn turntable a step
+        Edit3DScanPlugin::turntable->turnNumberOfDegrees(degreesPerStep);
+    }
+
+    Edit3DScanPlugin::turntable->disable();
 
     if (mesh && gla)
     {
@@ -125,54 +133,56 @@ Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)
     //imglaserOn = imglaserOn.rgbSwapped();
     //imglaserOn.save(QString("laserOn.jpg"),"JPEG");
 
+    int iPreviewWndDelay = 500;
+
     pPreviewWnd->updateFrame(laserOn, "laserOn");
-    msleep(3000);
+    msleep(iPreviewWndDelay);
 
     //QImage imglaserOff((uchar*)laserOff.data, laserOff.cols, laserOff.rows, QImage::Format_RGB888);
     //imglaserOff = imglaserOff.rgbSwapped();
     //imglaserOff.save(QString("laserOff.jpg"),"JPEG");
 
     pPreviewWnd->updateFrame(laserOff, "laserOff");
-    msleep(3000);
+    msleep(iPreviewWndDelay);
 
     // convert to grayscale
     cvtColor(laserOn, grayLaserOn, CV_BGR2GRAY);
     cvtColor(laserOff, grayLaserOff, CV_BGR2GRAY);
 
     pPreviewWnd->updateFrame(grayLaserOn, "grayLaserOn");
-    msleep(3000);
+    msleep(iPreviewWndDelay);
 
     pPreviewWnd->updateFrame(grayLaserOff, "grayLaserOff");
-    msleep(3000);
+    msleep(iPreviewWndDelay);
 
     // diff image
     subtract(grayLaserOn,grayLaserOff,diffImage);
     pPreviewWnd->updateFrame(diffImage, "diffImage");
-    msleep(3000);
+    msleep(iPreviewWndDelay);
 
     /*
     // apply gaussian
     GaussianBlur(diffImage,gaussImage,Size(15,15),12,12);
     diffImage = diffImage-gaussImage;
     pPreviewWnd->updateFrame(diffImage, "gaussian");
-    msleep(3000);
+    msleep(iPreviewWndDelay);
     */
 
     // apply threshold
     double threshold = 10;
     cv::threshold(diffImage, diffImage, threshold, 255, THRESH_TOZERO);
     pPreviewWnd->updateFrame(diffImage, "threshold");
-    msleep(3000);
+    msleep(iPreviewWndDelay);
 
     // apply erode
     erode(diffImage,diffImage,Mat(3,3,CV_8U,Scalar(1)) );
     pPreviewWnd->updateFrame(diffImage, "erode");
-    msleep(3000);
+    msleep(iPreviewWndDelay);
 
     // apply canny
     Canny(diffImage,diffImage,20,50);
     pPreviewWnd->updateFrame(diffImage, "canny");
-    msleep(3000);
+    msleep(iPreviewWndDelay);
 
     int* edges = new int[cols]; //contains the cols index of the detected edges per row
     for(unsigned int y = 0; y < rows; y++)
@@ -206,7 +216,7 @@ Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)
     delete [] edges;
 
     pPreviewWnd->updateFrame(laserImage, "laserLine");
-    msleep(3000);
+    msleep(iPreviewWndDelay);
 
     //cvtColor(laserImage, result, CV_GRAY2RGB); //convert back ro rgb
     //QImage imgResult((uchar*)result.data, result.cols, result.rows, QImage::Format_RGB888);
@@ -218,7 +228,7 @@ Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)
 void ScanProc::MapLaserPointToGlobalPoint(Mat &laserLine, Mat &laserOff)
 {
     configuration* config = Edit3DScanPlugin::getConfiguration();
-    FSTurntable* turntable = Edit3DScanPlugin::getTurntable();
+    Turntable* turntable = Edit3DScanPlugin::getTurntable();
 
     //calculate position of laser on the back plane in cv frame
     GlobalPoint gLaserLinePosition = config->getLaserPositionOnBackPlane();

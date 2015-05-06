@@ -12,6 +12,7 @@ public:
     ArduinoSerial();
 
     void writeChar(char c);
+    void writeChars(char* c);
     void SetPortName(QString name);
     bool start();
     void stop();

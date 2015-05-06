@@ -66,8 +66,8 @@ public:
     static configuration* config;
     static configuration* getConfiguration() { return config; }
 
-    static FSTurntable* turntable;
-    static FSTurntable* getTurntable() { return turntable; }
+    static Turntable* turntable;
+    static Turntable* getTurntable() { return turntable; }
 
     static ArduinoSerial* arduino;
     static ArduinoSerial* getArduino() { return arduino; }
