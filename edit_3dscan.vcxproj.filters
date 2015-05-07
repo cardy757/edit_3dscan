@@ -136,6 +136,15 @@
     <ClCompile Include="turntable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cameraworker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_cameraworker.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_cameraworker.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="edit_3dscan.h">
@@ -166,6 +175,9 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="serial.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="cameraworker.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
