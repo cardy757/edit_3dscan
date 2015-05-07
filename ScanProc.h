@@ -43,6 +43,18 @@ private:
     CameraPreviewDlg* pPreviewWnd;
 
     Mat DetectLaser(Mat &laserOn, Mat &laserOff);
+
+    //algorithm from ATLAS 3D scanner
+    struct LaserRange
+    {
+        int startCol;
+        int endCol;
+        int centerCol;
+    };
+    Mat DetectLaser2(Mat &laserOn, Mat &laserOff);
+    int detectBestLaserRange(LaserRange * ranges, int numRanges, int prevLaserCol);
+    int detectLaserRangeCenter(const int row, const LaserRange& range, const Mat& diffImage);
+
     void MapLaserPointToGlobalPoint(Mat &laserLine, Mat &laserOff);
     CvPoint convertFSPointToCvPoint(GlobalPoint fsPoint);
     GlobalPoint convertCvPointToGlobalPoint(CvPoint cvPoint);

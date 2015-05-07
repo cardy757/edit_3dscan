@@ -60,7 +60,7 @@ void ScanProc::run()
         //Mat matLaserOff = imread("/Users/justin/MeshLabSrc/laserOff.jpg");
 #endif
 
-        Mat matLaserLine = DetectLaser(matLaserOn, matLaserOff);
+        Mat matLaserLine = DetectLaser2(matLaserOn, matLaserOff);
         MapLaserPointToGlobalPoint(matLaserLine, matLaserOff);
 
         //turn turntable a step
@@ -223,6 +223,214 @@ Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)
     //imgResult.save(QString("result.jpg"),"JPEG");
 
     return laserImage;
+}
+
+Mat ScanProc::DetectLaser2(Mat &laserOn, Mat &laserOff)
+{
+    int& rows = laserOff.rows;
+    int& cols = laserOff.cols;
+    Mat grayLaserOn(rows, cols, CV_8U, Scalar(0));
+    Mat grayLaserOff(rows, cols, CV_8U, Scalar(0));
+    Mat diffImage(rows, cols, CV_8U, Scalar(0));
+    Mat thresholdImage(rows, cols, CV_8U, Scalar(0));
+    Mat rangeImage(rows, cols, CV_8U, Scalar(0));
+    Mat result(rows, cols, CV_8U, Scalar(0));
+
+    // convert to grayscale
+    cvtColor(laserOff, grayLaserOff, CV_BGR2GRAY);
+    cvtColor(laserOn, grayLaserOn, CV_BGR2GRAY);
+    subtract(grayLaserOn, grayLaserOff, diffImage);
+
+    //const double MAX_MAGNITUDE_SQ = 255 * 255 * 3; // The maximum pixel magnitude sq we can see
+    //const double INV_MAX_MAGNITUDE_SQ = 1.0f / MAX_MAGNITUDE_SQ;
+
+    const int width = grayLaserOff.cols;
+    const int height = grayLaserOff.rows;
+
+    int numLocations = 0;
+
+    int numMerged = 0;
+    int numPixelsOverThreshold = 0;
+
+    // The location that we last detected a laser line
+    int maxNumLocations = height;
+    int firstRowLaserCol = width / 2;
+    int prevLaserCol = firstRowLaserCol;
+    LaserRange* laserRanges = new LaserRange[width + 1];
+
+    for (unsigned iRow = 0; iRow < height && numLocations < maxNumLocations; iRow++)
+    {
+        // The column that the laser started and ended on
+        int numLaserRanges = 0;
+        laserRanges[numLaserRanges].startCol = -1;
+        laserRanges[numLaserRanges].endCol = -1;
+
+        int numRowOut = 0;
+        int imageColumn = 0;
+        for (unsigned iCol = 0; iCol < width; iCol += 1)
+        {
+            int mag = diffImage.at<uchar>(iRow, iCol);
+
+            // Compare it against the threshold
+            if (mag > 10 /*m_laserMagnitudeThreshold*/)
+            {
+                thresholdImage.at<uchar>(iRow, iCol) = 255;
+
+                // Flag that this pixel was over the threshold value
+                numPixelsOverThreshold++;
+
+                // The start of pixels with laser in them
+                if (laserRanges[numLaserRanges].startCol == -1)
+                {
+                    laserRanges[numLaserRanges].startCol = imageColumn;
+                }
+
+            }
+            // The end of pixels with laser in them
+            else if (laserRanges[numLaserRanges].startCol != -1)
+            {
+                int laserWidth = imageColumn - laserRanges[numLaserRanges].startCol;
+                if (laserWidth <= 40 /*m_maxLaserWidth*/ && laserWidth >= 3 /*m_minLaserWidth*/)
+                {
+                    // If this range was real close to the previous one, merge them instead of creating a new one
+                    bool wasMerged = false;
+                    if (numLaserRanges > 0)
+                    {
+                        unsigned rangeDistance = laserRanges[numLaserRanges].startCol - laserRanges[numLaserRanges - 1].endCol;
+                        if (rangeDistance < 5 /*RANGE_DISTANCE_THRESHOLD*/)
+                        {
+                            laserRanges[numLaserRanges - 1].endCol = imageColumn;
+                            laserRanges[numLaserRanges - 1].centerCol = round((laserRanges[numLaserRanges - 1].startCol + laserRanges[numLaserRanges - 1].endCol) / 2);
+                            wasMerged = true;
+                            numMerged++;
+                        }
+                    }
+
+                    // Proceed to the next laser range
+                    if (!wasMerged)
+                    {
+                        // Add this range as a candidate
+                        laserRanges[numLaserRanges].endCol = imageColumn;
+                        laserRanges[numLaserRanges].centerCol = round((laserRanges[numLaserRanges].startCol + laserRanges[numLaserRanges].endCol) / 2);
+
+                        numLaserRanges++;
+                    }
+
+                    // Reinitialize the range
+                    laserRanges[numLaserRanges].startCol = -1;
+                    laserRanges[numLaserRanges].endCol = -1;
+                }
+                // There was a false positive
+                else
+                {
+                    laserRanges[numLaserRanges].startCol = -1;
+                }
+            }
+
+            // Go from image components back to image pixels
+            imageColumn++;
+
+        } // foreach column
+
+        // If we have a valid laser region
+        if (numLaserRanges > 0)
+        {
+            for (int i = 0; i < numLaserRanges; i++)
+            {
+                for (int j = laserRanges[i].startCol; j < laserRanges[i].endCol; j++)
+                {
+                    rangeImage.at<uchar>(iRow, j) = 255;
+                }
+            }
+
+            int rangeChoice = detectBestLaserRange(laserRanges, numLaserRanges, prevLaserCol);
+            prevLaserCol = laserRanges[rangeChoice].centerCol;
+
+            int centerCol = detectLaserRangeCenter(iRow, laserRanges[rangeChoice], diffImage);
+
+            result.at<uchar>(iRow, centerCol) = 255;
+
+            //laserLocations[numLocations].x = centerCol;
+            //laserLocations[numLocations].y = iRow;
+
+            // If this is the first row that a laser is detected in, set the firstRowLaserCol member
+            if (numLocations == 0)
+            {
+                firstRowLaserCol = laserRanges[rangeChoice].startCol;
+            }
+
+            numLocations++;
+
+        }
+    } // foreach row
+
+    int iPreviewWndDelay = 500;
+
+    pPreviewWnd->updateFrame(grayLaserOff, "laser off");
+    msleep(iPreviewWndDelay);
+
+    pPreviewWnd->updateFrame(grayLaserOn, "laser onn");
+    msleep(iPreviewWndDelay);
+
+    pPreviewWnd->updateFrame(diffImage, "diff");
+    msleep(iPreviewWndDelay);
+
+    pPreviewWnd->updateFrame(thresholdImage, "threshold");
+    msleep(iPreviewWndDelay);
+
+    pPreviewWnd->updateFrame(rangeImage, "laser range");
+    msleep(iPreviewWndDelay);
+
+    pPreviewWnd->updateFrame(result, "result");
+    msleep(iPreviewWndDelay);
+
+    return result;
+}
+
+int ScanProc::detectBestLaserRange(LaserRange * ranges, int numRanges, int prevLaserCol)
+{
+    int bestRange = 0;
+    int distanceOfBest = abs(ranges[0].centerCol - prevLaserCol);
+
+    // TODO: instead of just looking at the last laser position, this should probably be a sliding window
+    // Select based off of minimum distance to last laser position
+    for (int i = 1; i < numRanges; i++)
+    {
+        int dist = abs(ranges[i].centerCol - prevLaserCol);
+        if (dist < distanceOfBest)
+        {
+            bestRange = i;
+            distanceOfBest = dist;
+        }
+    }
+
+    return bestRange;
+}
+
+int ScanProc::detectLaserRangeCenter(const int row, const LaserRange& range, const Mat& diffImage)
+{
+    int startCol = range.startCol;
+    int centerCol = startCol;
+    int endCol = range.endCol;
+    int components = 3;
+
+    int totalSum = 0;
+    int weightedSum = 0;
+    int cCol = 0;
+    for (int bCol = startCol; bCol < endCol; bCol++)
+    {
+        int mag = diffImage.at<uchar>(row, bCol);
+
+        totalSum += mag;
+        weightedSum += mag * cCol;
+
+        cCol++;
+    }
+
+    // Compute the center of mass
+    centerCol = startCol + int((float)weightedSum / totalSum + 0.5f);
+
+    return centerCol;
 }
 
 void ScanProc::MapLaserPointToGlobalPoint(Mat &laserLine, Mat &laserOff)
