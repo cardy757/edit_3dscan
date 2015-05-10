@@ -56,7 +56,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\..;..\..\..\..\vcglib;..\..\external\glew-1.7.0\include;$(QTDIR)\include;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtScript;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtMultimediaWidgets;release;$(QTDIR)\mkspecs\win32-msvc2013;.\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..;..\..\..\..\vcglib;..\..\external\glew-1.7.0\include;$(QTDIR)\include;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtScript;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtMultimediaWidgets;$(QTDIR)\include\QtSerialPort;release;$(QTDIR)\mkspecs\win32-msvc2013;.\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm200 -Zc:strictStrings -w34100 -w34189 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glu32.lib;opengl32.lib;gdi32.lib;user32.lib;../../distrib/common.lib;opencv_core2411.lib;opencv_highgui2411.lib;opencv_imgproc2411.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Xml.lib;$(QTDIR)\lib\Qt5XmlPatterns.lib;$(QTDIR)\lib\Qt5Network.lib;$(QTDIR)\lib\Qt5Script.lib;$(QTDIR)\lib\Qt5Core.lib;$(QTDIR)\lib\Qt5MultimediaWidgets.lib;$(QTDIR)\lib\Qt5Multimedia.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glu32.lib;opengl32.lib;gdi32.lib;user32.lib;../../distrib/common.lib;opencv_core2411.lib;opencv_highgui2411.lib;opencv_imgproc2411.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Xml.lib;$(QTDIR)\lib\Qt5XmlPatterns.lib;$(QTDIR)\lib\Qt5Network.lib;$(QTDIR)\lib\Qt5Script.lib;$(QTDIR)\lib\Qt5Core.lib;$(QTDIR)\lib\Qt5MultimediaWidgets.lib;$(QTDIR)\lib\Qt5Multimedia.lib;$(QTDIR)\lib\Qt5SerialPort.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -97,7 +97,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\..;..\..\..\..\vcglib;..\..\external\glew-1.7.0\include;$(QTDIR)\include;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtScript;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtMultimediaWidgets;debug;$(QTDIR)\mkspecs\win32-msvc2013;.\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..;..\..\..\..\vcglib;..\..\external\glew-1.7.0\include;$(QTDIR)\include;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtScript;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtMultimediaWidgets;$(QTDIR)\include\QtSerialPort;debug;$(QTDIR)\mkspecs\win32-msvc2013;.\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm200 -w34100 -w34189 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -115,7 +115,7 @@
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glu32.lib;opengl32.lib;gdi32.lib;user32.lib;../../distrib/common.lib;opencv_core2411d.lib;opencv_highgui2411d.lib;opencv_imgproc2411d.lib;$(QTDIR)\lib\Qt5OpenGLd.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5Xmld.lib;$(QTDIR)\lib\Qt5XmlPatternsd.lib;$(QTDIR)\lib\Qt5Networkd.lib;$(QTDIR)\lib\Qt5Scriptd.lib;$(QTDIR)\lib\Qt5Cored.lib;$(QTDIR)\lib\Qt5MultimediaWidgetsd.lib;$(QTDIR)\lib\Qt5Multimediad.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glu32.lib;opengl32.lib;gdi32.lib;user32.lib;../../distrib/common.lib;opencv_core2411d.lib;opencv_highgui2411d.lib;opencv_imgproc2411d.lib;$(QTDIR)\lib\Qt5OpenGLd.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5Xmld.lib;$(QTDIR)\lib\Qt5XmlPatternsd.lib;$(QTDIR)\lib\Qt5Networkd.lib;$(QTDIR)\lib\Qt5Scriptd.lib;$(QTDIR)\lib\Qt5Cored.lib;$(QTDIR)\lib\Qt5MultimediaWidgetsd.lib;$(QTDIR)\lib\Qt5Multimediad.lib;$(QTDIR)\lib\Qt5SerialPortd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -137,8 +137,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="camerapreviewdlg.cpp" />
+    <ClCompile Include="cameraworker.cpp" />
     <ClCompile Include="configuration.cpp" />
     <ClCompile Include="Debug\moc_camerapreviewdlg.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_cameraworker.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Debug\moc_edit_3dscan.cpp">
@@ -166,6 +170,9 @@
     <ClCompile Include="edit_3dscan_factory.cpp" />
     <ClCompile Include="myopenglwidget.cpp" />
     <ClCompile Include="Release\moc_camerapreviewdlg.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Release\moc_cameraworker.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Release\moc_myopenglwidget.cpp">
@@ -310,6 +317,16 @@ endlocal
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing myopenglwidget.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DMESHLAB_SCALAR=float -DNOMINMAX -DGLEW_STATIC -D_USE_MATH_DEFINES -D_CRT_SECURE_NO_DEPRECATE -DQT_NO_DEBUG -DQT_PLUGIN -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_SCRIPT_LIB -DQT_CORE_LIB -DNDEBUG -D_WINDLL "-I." "-I.\..\.." "-I.\..\..\..\..\vcglib" "-I.\..\..\external\glew-1.7.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtXmlPatterns" "-I$(QTDIR)\include\QtNetwork" "-I$(QTDIR)\include\QtScript" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtMultimedia" "-I$(QTDIR)\include\QtMultimediaWidgets" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2013" "-I.\GeneratedFiles"</Command>
+    </CustomBuild>
+    <CustomBuild Include="cameraworker.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing cameraworker.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DMESHLAB_SCALAR=float -DNOMINMAX -DGLEW_STATIC -D_USE_MATH_DEFINES -D_CRT_SECURE_NO_DEPRECATE -DQT_PLUGIN -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_SCRIPT_LIB -DQT_CORE_LIB -D_WINDLL "-I." "-I.\..\.." "-I.\..\..\..\..\vcglib" "-I.\..\..\external\glew-1.7.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtXmlPatterns" "-I$(QTDIR)\include\QtNetwork" "-I$(QTDIR)\include\QtScript" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtMultimedia" "-I$(QTDIR)\include\QtMultimediaWidgets" "-I$(QTDIR)\include\QtSerialPort" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2013" "-I.\GeneratedFiles"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing cameraworker.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DMESHLAB_SCALAR=float -DNOMINMAX -DGLEW_STATIC -D_USE_MATH_DEFINES -D_CRT_SECURE_NO_DEPRECATE -DQT_NO_DEBUG -DQT_PLUGIN -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_XMLPATTERNS_LIB -DQT_NETWORK_LIB -DQT_SCRIPT_LIB -DQT_CORE_LIB -DNDEBUG -D_WINDLL "-I." "-I.\..\.." "-I.\..\..\..\..\vcglib" "-I.\..\..\external\glew-1.7.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtXmlPatterns" "-I$(QTDIR)\include\QtNetwork" "-I$(QTDIR)\include\QtScript" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtMultimedia" "-I$(QTDIR)\include\QtMultimediaWidgets" "-I$(QTDIR)\include\QtSerialPort" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2013" "-I.\GeneratedFiles"</Command>
     </CustomBuild>
     <ClInclude Include="configuration.h" />
     <ClInclude Include="geometries.h" />
