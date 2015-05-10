@@ -6,7 +6,7 @@ CameraPreviewDlg::CameraPreviewDlg(QWidget *parent)
     setFloating(true);
     setAllowedAreas(Qt::NoDockWidgetArea);
 
-    QSize size(1280, 720);
+    QSize size(1280, 960);
     setFixedSize(size);
     setMaximumSize(size);
     setMinimumSize(size);

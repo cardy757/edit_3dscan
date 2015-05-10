@@ -25,6 +25,14 @@ void ScanProc::run()
         msleep(1000);
     }
 
+    if (mesh == NULL || gla == NULL)
+    {
+        Q_ASSERT(false);
+        return;
+    }
+    mesh->Clear();
+    vcg::tri::Allocator<CMeshO>::AddVertices(mesh->cm, 10000); //??
+
     Edit3DScanPlugin::turntable->enable();
     Edit3DScanPlugin::turntable->setDirection(FS_DIRECTION_CCW);
 
@@ -61,6 +69,7 @@ void ScanProc::run()
 #endif
 
         Mat matLaserLine = DetectLaser(matLaserOn, matLaserOff);
+
         MapLaserPointToGlobalPoint(matLaserLine, matLaserOff);
 
         //turn turntable a step
@@ -69,6 +78,7 @@ void ScanProc::run()
 
     Edit3DScanPlugin::turntable->disable();
 
+#if 0
     if (mesh && gla)
     {
         mutex.lock();
@@ -108,6 +118,7 @@ void ScanProc::run()
         mesh->meshModified() = true;
         gla->update();
     }
+#endif
 }
 
 void ScanProc::stop()
@@ -232,7 +243,7 @@ void ScanProc::MapLaserPointToGlobalPoint(Mat &laserLine, Mat &laserOff)
 
     //calculate position of laser on the back plane in cv frame
     GlobalPoint gLaserLinePosition = config->getLaserPositionOnBackPlane();
-    CvPoint cvLaserLinePosition = convertFSPointToCvPoint(gLaserLinePosition);
+    CvPoint cvLaserLinePosition = convertGlobalPointToCvPoint(gLaserLinePosition);
     int laserPos = cvLaserLinePosition.x; //const over all y
 
     unsigned int cols = laserLine.cols;
@@ -301,6 +312,12 @@ void ScanProc::MapLaserPointToGlobalPoint(Mat &laserLine, Mat &laserOff)
 
                 if(fsNewPoint.y > 0.5 && hypotenuse < 7)
                 {
+                    static int c = 0;
+                    mesh->cm.vert[c].P() = vcg::Point3f(fsNewPoint.x, fsNewPoint.y, fsNewPoint.z);
+                    mesh->cm.vert[c].C() = vcg::Color4b(255, 0, 0, 255);
+                    c++;
+                    mesh->meshModified() = true;
+                    gla->update();
                     //eliminate points from the grounds, that are not part of the model
                     //qDebug("adding point");
                     //model->addPointToPointCloud(fsNewPoint);
@@ -311,14 +328,14 @@ void ScanProc::MapLaserPointToGlobalPoint(Mat &laserLine, Mat &laserOff)
     }
 }
 
-CvPoint ScanProc::convertFSPointToCvPoint(GlobalPoint fsPoint)
+CvPoint ScanProc::convertGlobalPointToCvPoint(GlobalPoint fsPoint)
 {
     configuration* config = Edit3DScanPlugin::getConfiguration();
 
     CvSize cvImageSize = cvSize(config->CAM_IMAGE_WIDTH,
                                 config->CAM_IMAGE_HEIGHT);
     GlobalSizeFS fsImageSize = MakeGlobalSize(config->FRAME_WIDTH,
-                                            config->FRAME_WIDTH * (config->CAM_IMAGE_HEIGHT / config->CAM_IMAGE_WIDTH),
+                                            (double)config->FRAME_WIDTH * ((double)config->CAM_IMAGE_HEIGHT / (double)config->CAM_IMAGE_WIDTH),
                                             0.0f);
     CvPoint origin;
     origin.x = cvImageSize.width / 2.0f;

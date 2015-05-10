@@ -40,7 +40,7 @@ void configuration::setDefaultValues()
     LASER_POS_Y = 6.4f;  //not needed/used for calculations
     LASER_POS_Z = 28.8f; //precise by construction
 
-    LASER_POS_ON_BACK_PLANE_X = 0.0f;
+    LASER_POS_ON_BACK_PLANE_X = -5.0f;
     LASER_POS_ON_BACK_PLANE_Y = 6.4f;
     LASER_POS_ON_BACK_PLANE_Z = 0.0f;
 

@@ -47,7 +47,7 @@ void webcam::start()
         }
 
         m_vcap->set(CV_CAP_PROP_FRAME_WIDTH, 1280);
-        m_vcap->set(CV_CAP_PROP_FRAME_HEIGHT, 720);
+        m_vcap->set(CV_CAP_PROP_FRAME_HEIGHT, 960);
 
         m_cameraworker = new cameraworker(this);
         m_cameraworker->start();

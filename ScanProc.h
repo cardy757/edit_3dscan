@@ -44,7 +44,7 @@ private:
 
     Mat DetectLaser(Mat &laserOn, Mat &laserOff);
     void MapLaserPointToGlobalPoint(Mat &laserLine, Mat &laserOff);
-    CvPoint convertFSPointToCvPoint(GlobalPoint fsPoint);
+    CvPoint convertGlobalPointToCvPoint(GlobalPoint fsPoint);
     GlobalPoint convertCvPointToGlobalPoint(CvPoint cvPoint);
 };
 
