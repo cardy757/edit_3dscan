@@ -37,6 +37,7 @@ private:
     double direction; //in which direction is the table turning, left or right
     GlobalPoint rotation; //the current rotation of the turntable
 
+    void reset();
 
 public:
     double degreesPerStep; //the stepper performs step of a certain number of degrees

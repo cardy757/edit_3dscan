@@ -27,6 +27,7 @@ public:
     void SetGLArea(GLArea* g) { gla = g; }
     void SetPreviewWnd(CameraPreviewDlg *p) { pPreviewWnd = p; }
     void SetWebcam(webcam *cam) { m_webcam = cam; }
+    void Init();
 
     void run();
     void stop();

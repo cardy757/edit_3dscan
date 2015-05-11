@@ -3,6 +3,8 @@
 #include "geometries.h"
 #include "edit_3dscan.h"
 
+#define LASER_LINE_DETECTION_PREVIEW_DELAY 100
+
 ScanProc::ScanProc(QObject *parent)
     : QThread(parent)
 {
@@ -18,6 +20,11 @@ ScanProc::~ScanProc()
 
 }
 
+void ScanProc::Init()
+{
+    fstop = false;
+}
+
 void ScanProc::run()
 {
     while (!m_webcam->read(m_image))
@@ -31,7 +38,7 @@ void ScanProc::run()
         return;
     }
     mesh->Clear();
-    vcg::tri::Allocator<CMeshO>::AddVertices(mesh->cm, 10000); //??
+    vcg::tri::Allocator<CMeshO>::AddVertices(mesh->cm, 1000000); //??
 
     Edit3DScanPlugin::turntable->enable();
     Edit3DScanPlugin::turntable->setDirection(FS_DIRECTION_CCW);
@@ -48,9 +55,9 @@ void ScanProc::run()
         m_webcam->read(m_image);
         Mat matLaserOn = m_image;
 #ifdef WIN32
-        //Mat matLaserOn = imread("input_laser_on.jpg", CV_LOAD_IMAGE_COLOR);
+        //matLaserOn = imread("input_laser_on.jpg", CV_LOAD_IMAGE_COLOR);
 #else
-        //Mat matLaserOn = imread("/Users/justin/MeshLabSrc/laserOn.jpg");
+        //matLaserOn = imread("/Users/justin/MeshLabSrc/laserOn.jpg");
 #endif
 
         // turn off laser
@@ -63,9 +70,9 @@ void ScanProc::run()
         m_webcam->read(m_image);
         Mat matLaserOff = m_image;
 #ifdef WIN32
-        //Mat matLaserOff = imread("input_laser_off.jpg", CV_LOAD_IMAGE_COLOR);
+        //matLaserOff = imread("input_laser_off.jpg", CV_LOAD_IMAGE_COLOR);
 #else
-        //Mat matLaserOff = imread("/Users/justin/MeshLabSrc/laserOff.jpg");
+        //matLaserOff = imread("/Users/justin/MeshLabSrc/laserOff.jpg");
 #endif
         Mat matLaserLine = DetectLaser(matLaserOn, matLaserOff);
         //Mat matLaserLine = DetectLaser2(matLaserOn, matLaserOff);
@@ -73,6 +80,11 @@ void ScanProc::run()
 
         //turn turntable a step
         Edit3DScanPlugin::turntable->turnNumberOfDegrees(degreesPerStep);
+
+        if (fstop)
+        {
+            break;
+        }
     }
 
     Edit3DScanPlugin::turntable->disable();
@@ -143,56 +155,54 @@ Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)
     //imglaserOn = imglaserOn.rgbSwapped();
     //imglaserOn.save(QString("laserOn.jpg"),"JPEG");
 
-    int iPreviewWndDelay = 500;
-
     pPreviewWnd->updateFrame(laserOn, "laserOn");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     //QImage imglaserOff((uchar*)laserOff.data, laserOff.cols, laserOff.rows, QImage::Format_RGB888);
     //imglaserOff = imglaserOff.rgbSwapped();
     //imglaserOff.save(QString("laserOff.jpg"),"JPEG");
 
     pPreviewWnd->updateFrame(laserOff, "laserOff");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     // convert to grayscale
     cvtColor(laserOn, grayLaserOn, CV_BGR2GRAY);
     cvtColor(laserOff, grayLaserOff, CV_BGR2GRAY);
 
     pPreviewWnd->updateFrame(grayLaserOn, "grayLaserOn");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     pPreviewWnd->updateFrame(grayLaserOff, "grayLaserOff");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     // diff image
     subtract(grayLaserOn,grayLaserOff,diffImage);
     pPreviewWnd->updateFrame(diffImage, "diffImage");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     /*
     // apply gaussian
     GaussianBlur(diffImage,gaussImage,Size(15,15),12,12);
     diffImage = diffImage-gaussImage;
     pPreviewWnd->updateFrame(diffImage, "gaussian");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_DELAY);
     */
 
     // apply threshold
     double threshold = 10;
     cv::threshold(diffImage, diffImage, threshold, 255, THRESH_TOZERO);
     pPreviewWnd->updateFrame(diffImage, "threshold");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     // apply erode
     erode(diffImage,diffImage,Mat(3,3,CV_8U,Scalar(1)) );
     pPreviewWnd->updateFrame(diffImage, "erode");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     // apply canny
     Canny(diffImage,diffImage,20,50);
     pPreviewWnd->updateFrame(diffImage, "canny");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     int* edges = new int[cols]; //contains the cols index of the detected edges per row
     for(unsigned int y = 0; y < rows; y++)
@@ -226,7 +236,7 @@ Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)
     delete [] edges;
 
     pPreviewWnd->updateFrame(laserImage, "laserLine");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     //cvtColor(laserImage, result, CV_GRAY2RGB); //convert back ro rgb
     //QImage imgResult((uchar*)result.data, result.cols, result.rows, QImage::Format_RGB888);
@@ -374,25 +384,23 @@ Mat ScanProc::DetectLaser2(Mat &laserOn, Mat &laserOff)
         }
     } // foreach row
 
-    int iPreviewWndDelay = 500;
-
     pPreviewWnd->updateFrame(grayLaserOff, "laser off");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     pPreviewWnd->updateFrame(grayLaserOn, "laser onn");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     pPreviewWnd->updateFrame(diffImage, "diff");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     pPreviewWnd->updateFrame(thresholdImage, "threshold");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     pPreviewWnd->updateFrame(rangeImage, "laser range");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     pPreviewWnd->updateFrame(result, "result");
-    msleep(iPreviewWndDelay);
+    msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     return result;
 }

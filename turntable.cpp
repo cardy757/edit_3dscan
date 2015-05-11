@@ -3,6 +3,11 @@
 
 Turntable::Turntable()
 {
+    reset();
+}
+
+void Turntable::reset()
+{
     degreesPerStep = 360.0f/200.0f/16.0f; //the size of a microstep
     direction = FS_DIRECTION_CW;
     rotation = MakeGlobalPoint(0.0f, 0.0f, 0.0f);
@@ -60,6 +65,7 @@ void Turntable::toggleDirection()
 
 void Turntable::enable(void)
 {
+    reset();
     Edit3DScanPlugin::arduino->writeChar(MC_TURN_STEPPER_ON);
 }
 

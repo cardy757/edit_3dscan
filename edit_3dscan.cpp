@@ -214,6 +214,7 @@ void Edit3DScanPlugin::procScan()
         arduino->start();
         m_webcam->start();
         calcResDlg->show();
+        scanProc.Init();
         scanProc.SetPreviewWnd(calcResDlg);
         scanProc.SetMesh(mesh);
         scanProc.SetGLArea(gla);
@@ -223,10 +224,11 @@ void Edit3DScanPlugin::procScan()
     }
     else //stop scan process
     {
-        arduino->stop();
-        m_webcam->stop();
-        calcResDlg->hide();
         scanProc.stop();
+        scanProc.wait();
+        m_webcam->stop();
+        arduino->stop();
+        calcResDlg->hide();
         b->setText("Start Scan");
     }
 }

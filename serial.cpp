@@ -88,7 +88,10 @@ void ArduinoSerial::stop()
 
 void ArduinoSerial::readData()
 {
-    QByteArray data = pSerialPort->readAll();
+    if (pSerialPort != NULL)
+    {
+        QByteArray data = pSerialPort->readAll();
+    }
 }
 
 void ArduinoSerial::handleError(QSerialPort::SerialPortError error)
