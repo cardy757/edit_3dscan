@@ -27,7 +27,7 @@ void configuration::setDefaultValues()
     /********************************/
 
     //logitech c270
-    FRAME_WIDTH = 26.6f; //in cm. the width of what the camera sees, ie place a measure tool at the back-plane and see how many cm the camera sees.
+    FRAME_WIDTH = 30.0f; //in cm. the width of what the camera sees, ie place a measure tool at the back-plane and see how many cm the camera sees.
     CAM_IMAGE_WIDTH = 1280.0f;
     CAM_IMAGE_HEIGHT = 960.0f; //here I am not sure, i think it is 960, (old=853.0f)
 
@@ -37,10 +37,10 @@ void configuration::setDefaultValues()
 
     //position of the laser
     LASER_POS_X = 14.0f; //precise by construction
-    LASER_POS_Y = 6.4f;  //not needed/used for calculations
+    LASER_POS_Y = 10.0f;  //not needed/used for calculations
     LASER_POS_Z = 28.8f; //precise by construction
 
-    LASER_POS_ON_BACK_PLANE_X = -5.0f;
+    LASER_POS_ON_BACK_PLANE_X = -7.0f;
     LASER_POS_ON_BACK_PLANE_Y = 6.4f;
     LASER_POS_ON_BACK_PLANE_Z = 0.0f;
 
@@ -49,13 +49,13 @@ void configuration::setDefaultValues()
 
     //position of the c270
     CAM_POS_X = 0.0f; //precise by construction
-    CAM_POS_Y = 5.57f;
-    CAM_POS_Z = 30.9f;
+    CAM_POS_Y = 11.0f;
+    CAM_POS_Z = 26.0f;
 
     //position of the turntable
     TURNTABLE_POS_X = 0.0f; //not used by calculations
     TURNTABLE_POS_Y = 0.0f; //not used by calculations
-    TURNTABLE_POS_Z = 7.5f; //precise by construction
+    TURNTABLE_POS_Z = 11.0f; //precise by construction
 }
 
 void configuration::read(const FileNode& node)                          //Read serialization for this class
