@@ -74,8 +74,8 @@ void ScanProc::run()
 #else
         //matLaserOff = imread("/Users/justin/MeshLabSrc/laserOff.jpg");
 #endif
-        Mat matLaserLine = DetectLaser(matLaserOn, matLaserOff);
-        //Mat matLaserLine = DetectLaser2(matLaserOn, matLaserOff);
+        //Mat matLaserLine = DetectLaser(matLaserOn, matLaserOff);
+        Mat matLaserLine = DetectLaser2(matLaserOn, matLaserOff);
         MapLaserPointToGlobalPoint(matLaserLine, matLaserOff);
 
         //turn turntable a step
@@ -247,6 +247,11 @@ Mat ScanProc::DetectLaser(Mat &laserOn, Mat &laserOff)
 
 Mat ScanProc::DetectLaser2(Mat &laserOn, Mat &laserOff)
 {
+    //some parameter need to be tuned
+    int laserMagnitudeThreshold = 20;   //default: 10
+    int maxLaserWidth = 40, minLaserWidth = 3; //default: 40, 3
+    int rangeDistanceThreshold = 5; //default: 5
+
     int& rows = laserOff.rows;
     int& cols = laserOff.cols;
     Mat grayLaserOn(rows, cols, CV_8U, Scalar(0));
@@ -266,6 +271,8 @@ Mat ScanProc::DetectLaser2(Mat &laserOn, Mat &laserOff)
 
     const int width = grayLaserOff.cols;
     const int height = grayLaserOff.rows;
+    //unsigned components = before.getNumComponents();
+    //unsigned rowStep = width * components;
 
     int numLocations = 0;
 
@@ -278,6 +285,9 @@ Mat ScanProc::DetectLaser2(Mat &laserOn, Mat &laserOff)
     int prevLaserCol = firstRowLaserCol;
     LaserRange* laserRanges = new LaserRange[width + 1];
 
+    //unsigned char * ar = a;
+    //unsigned char * br = b;
+    //unsigned char * dr = d;
     for (unsigned iRow = 0; iRow < height && numLocations < maxNumLocations; iRow++)
     {
         // The column that the laser started and ended on
@@ -292,7 +302,7 @@ Mat ScanProc::DetectLaser2(Mat &laserOn, Mat &laserOff)
             int mag = diffImage.at<uchar>(iRow, iCol);
 
             // Compare it against the threshold
-            if (mag > 10 /*m_laserMagnitudeThreshold*/)
+            if (mag > laserMagnitudeThreshold)
             {
                 thresholdImage.at<uchar>(iRow, iCol) = 255;
 
@@ -310,14 +320,14 @@ Mat ScanProc::DetectLaser2(Mat &laserOn, Mat &laserOff)
             else if (laserRanges[numLaserRanges].startCol != -1)
             {
                 int laserWidth = imageColumn - laserRanges[numLaserRanges].startCol;
-                if (laserWidth <= 40 /*m_maxLaserWidth*/ && laserWidth >= 3 /*m_minLaserWidth*/)
+                if (laserWidth <= maxLaserWidth && laserWidth >= minLaserWidth)
                 {
                     // If this range was real close to the previous one, merge them instead of creating a new one
                     bool wasMerged = false;
                     if (numLaserRanges > 0)
                     {
                         unsigned rangeDistance = laserRanges[numLaserRanges].startCol - laserRanges[numLaserRanges - 1].endCol;
-                        if (rangeDistance < 5 /*RANGE_DISTANCE_THRESHOLD*/)
+                        if (rangeDistance < rangeDistanceThreshold)
                         {
                             laserRanges[numLaserRanges - 1].endCol = imageColumn;
                             laserRanges[numLaserRanges - 1].centerCol = round((laserRanges[numLaserRanges - 1].startCol + laserRanges[numLaserRanges - 1].endCol) / 2);
