@@ -33,6 +33,7 @@ $Log: meshedit.cpp,v $
 #include <wrap/qt/gl_label.h>
 #include <QTimer>
 #include <QtSerialPort/QSerialPortInfo>
+#include <QMessageBox>
 #include "opencv2/highgui/highgui.hpp"
 #ifndef WIN32
 #include "opencv2/videoio/videoio_c.h" // need for CV_CAP_PROP... ??
@@ -211,7 +212,11 @@ void Edit3DScanPlugin::procScan()
     {
         QString serialPortName = scanDialog->ui.serialPortInfoListBox->currentText();
         arduino->SetPortName(serialPortName);
-        arduino->start();
+        if (!arduino->start())
+        {
+            QMessageBox(QMessageBox::Critical, "3D Scan", "Open " + serialPortName + " failed.", QMessageBox::Ok).exec();
+            return;
+        }
         m_webcam->start();
         calcResDlg->show();
         scanProc.Init();
