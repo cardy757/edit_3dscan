@@ -38,7 +38,6 @@ void ScanProc::run()
         return;
     }
     mesh->Clear();
-    vcg::tri::Allocator<CMeshO>::AddVertices(mesh->cm, 1000000); //??
 
     Edit3DScanPlugin::turntable->enable();
     Edit3DScanPlugin::turntable->setDirection(FS_DIRECTION_CCW);
@@ -538,6 +537,7 @@ void ScanProc::MapLaserPointToGlobalPoint(Mat &laserLine, Mat &laserOff)
                 if(fsNewPoint.y > 0.5 && hypotenuse < 7)
                 {
                     static int c = 0;
+                    vcg::tri::Allocator<CMeshO>::AddVertices(mesh->cm, 1);
                     mesh->cm.vert[c].P() = vcg::Point3f(fsNewPoint.x, fsNewPoint.y, fsNewPoint.z);
                     mesh->cm.vert[c].C() = vcg::Color4b(255, 0, 0, 255);
                     c++;
