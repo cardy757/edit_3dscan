@@ -88,6 +88,8 @@ void ScanProc::run()
 
     Edit3DScanPlugin::turntable->disable();
 
+    emit scanFinished();
+
 #if 0
     if (mesh && gla)
     {

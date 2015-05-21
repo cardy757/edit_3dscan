@@ -195,6 +195,7 @@ bool Edit3DScanPlugin::StartEdit(MeshDocument &m, GLArea *parent)
     }
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(updateFrame()));
+    connect(&scanProc, SIGNAL(scanFinished()), this, SLOT(scanFinished()));
 
     return true;
 }
@@ -317,4 +318,14 @@ void Edit3DScanPlugin::SerialPortInfoInit()
     {
         scanDialog->ui.serialPortInfoListBox->addItem(info.portName());
     }
+}
+
+void Edit3DScanPlugin::scanFinished()
+{
+    scanProc.stop();
+    scanProc.wait();
+    m_webcam->stop();
+    arduino->stop();
+    calcResDlg->hide();
+    scanDialog->ui.procScan->setText("Start Scan");
 }

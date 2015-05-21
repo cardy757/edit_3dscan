@@ -32,6 +32,9 @@ public:
     void run();
     void stop();
 
+signals:
+    void scanFinished(void);
+
 private:
     QMutex mutex;
     bool fstop;

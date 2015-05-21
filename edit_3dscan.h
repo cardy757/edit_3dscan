@@ -97,6 +97,7 @@ private Q_SLOTS:
     void webCam(int checkState); //change Web Camera Preivew checkbox
     void camWndClosed();
     void updateFrame();
+    void scanFinished();
 };
 
 #endif
