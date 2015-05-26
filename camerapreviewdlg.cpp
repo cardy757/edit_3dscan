@@ -57,6 +57,10 @@ void CameraPreviewDlg::paintEvent(QPaintEvent * event)
 {
     setWindowTitle(m_title);
 
+    if (!m_image.valid(0,0))
+    {
+        return;
+    }
     QPainter painter(this);
     painter.drawImage(QRect(0, 0, width(), height()), m_image, QRect(0, 0, m_image.width(), m_image.height()));
 }
