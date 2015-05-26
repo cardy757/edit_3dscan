@@ -232,10 +232,6 @@ void Edit3DScanPlugin::procScan()
     {
         scanProc.stop();
         scanProc.wait();
-        m_webcam->stop();
-        arduino->stop();
-        calcResDlg->hide();
-        b->setText("Start Scan");
     }
 }
 
@@ -322,8 +318,6 @@ void Edit3DScanPlugin::SerialPortInfoInit()
 
 void Edit3DScanPlugin::scanFinished()
 {
-    scanProc.stop();
-    scanProc.wait();
     m_webcam->stop();
     arduino->stop();
     calcResDlg->hide();
