@@ -4,6 +4,8 @@
 #include "edit_3dscan.h"
 
 #define LASER_LINE_DETECTION_PREVIEW_DELAY 100
+#define LASER_ON_DELAY 250
+#define LASER_OFF_DELAY 220
 
 ScanProc::ScanProc(QObject *parent)
     : QThread(parent)
@@ -29,7 +31,7 @@ void ScanProc::run()
 {
     while (!m_webcam->read(m_image))
     {
-        msleep(1000);
+        msleep(100);
     }
 
     if (mesh == NULL || gla == NULL)
@@ -49,7 +51,7 @@ void ScanProc::run()
     {
         // turn on laser
         Edit3DScanPlugin::arduino->writeChar(MC_TURN_LASER_ON);
-        msleep(3000);
+        msleep(LASER_ON_DELAY);
         // get one image
         m_webcam->read(m_image);
         Mat matLaserOn = m_image;
@@ -63,7 +65,7 @@ void ScanProc::run()
         Edit3DScanPlugin::arduino->writeChar(MC_TURN_LASER_OFF);
 
         // delay
-        msleep(1000);
+        msleep(LASER_OFF_DELAY);
 
         // get one image
         m_webcam->read(m_image);
@@ -89,48 +91,6 @@ void ScanProc::run()
     Edit3DScanPlugin::turntable->disable();
 
     emit scanFinished();
-
-#if 0
-    if (mesh && gla)
-    {
-        mutex.lock();
-        fstop = false;
-        mutex.unlock();
-
-        //?? synchronization problem
-        mesh->Clear();
-
-        int step = 90, c = 0;
-        double radius = 0.5, theta = 0, phi = 0;
-
-        vcg::tri::Allocator<CMeshO>::AddVertices(mesh->cm, step * step);
-        for (int i = 0; i < step; i++)
-        {
-            theta = M_PI / 180 * i * 4;
-            for (int j = 0; j < step; j++)
-            {
-                phi = M_PI / 180 * j * 4;
-                mesh->cm.vert[c].P() = vcg::Point3f(
-                    radius * sin(theta) * cos(phi),
-                    radius * sin(theta) * sin(phi),
-                    radius * cos(theta)
-                    );
-                mesh->cm.vert[c].C() = vcg::Color4b(255, 0, 0, 255);
-                c++;
-            }
-            mesh->meshModified() = true;
-            gla->update();
-
-            msleep(300);
-
-            QMutexLocker locker(&mutex);
-            if (fstop) break;
-        }
-        mesh->UpdateBoxAndNormals();
-        mesh->meshModified() = true;
-        gla->update();
-    }
-#endif
 }
 
 void ScanProc::stop()
@@ -398,7 +358,7 @@ Mat ScanProc::DetectLaser2(Mat &laserOn, Mat &laserOff)
     pPreviewWnd->updateFrame(grayLaserOff, "laser off");
     msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
-    pPreviewWnd->updateFrame(grayLaserOn, "laser onn");
+    pPreviewWnd->updateFrame(grayLaserOn, "laser on");
     msleep(LASER_LINE_DETECTION_PREVIEW_DELAY);
 
     pPreviewWnd->updateFrame(diffImage, "diff");
