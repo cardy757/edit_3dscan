@@ -78,18 +78,18 @@ void webcam::stop()
 
 bool webcam::read(Mat& image)
 {
-    QMutexLocker locker(&m_mutexImage);
     if (m_iRefCount == 0)
     {
         return false;
     }
     if (!m_bGotImage)
     {
-        static int count;
-        qDebug("!!!");
         return false;
     }
+
+    m_mutexImage.lock();
     image = m_image.clone();
+    m_mutexImage.unlock();
 
     return true;
 }
