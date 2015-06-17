@@ -63,6 +63,7 @@ protected:
 private:
     QString m_title;
     QImage m_image;
+    QMutex m_imageMutex;
     QVector<QRgb> m_grayColorTable;
 
     virtual void closeEvent(QCloseEvent * event);

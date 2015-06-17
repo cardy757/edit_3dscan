@@ -25,7 +25,9 @@ void CameraPreviewDlg::setSize(QSize size)
 
 void CameraPreviewDlg::updateFrame(QImage& image, QString caption)
 {
+    m_imageMutex.lock();
     m_image = image;
+    m_imageMutex.unlock();
     m_title = caption;
     update();
 }
@@ -55,6 +57,7 @@ void CameraPreviewDlg::updateFrame(Mat& mat, QString caption)
 
 void CameraPreviewDlg::paintEvent(QPaintEvent * event)
 {
+    QMutexLocker locker(&m_imageMutex);
     setWindowTitle(m_title);
 
     if (!m_image.valid(0,0))
