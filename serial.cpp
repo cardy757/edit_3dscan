@@ -50,7 +50,11 @@ void ArduinoSerial::SetPortName(QString name)
 #ifdef WIN32
     serialPortName = name;
 #else
-    serialPortName = "/dev/cu." + name;
+    #if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+        serialPortName = name;
+    #else
+        serialPortName = "/dev/cu." + name;
+    #endif
 #endif
 }
 
